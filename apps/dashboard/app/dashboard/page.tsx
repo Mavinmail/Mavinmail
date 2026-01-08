@@ -1,14 +1,3 @@
-// import GmailConnect from './GmailConnect';
-
-// export default function DashboardPage() {
-//   return (
-//     <div className="min-h-screen bg-gray-100 flex flex-col items-center pt-10">
-//       <h1 className="text-4xl font-bold mb-8">Welcome to your Dashboard</h1>
-//       <GmailConnect />
-//     </div>
-//   );
-// }
-
 'use client'; // Required for onClick handlers and hooks like useRouter
 
 import { useRouter } from 'next/navigation';
