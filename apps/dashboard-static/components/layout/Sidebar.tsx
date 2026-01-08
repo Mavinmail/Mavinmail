@@ -49,13 +49,15 @@ export function Sidebar({ className, activeView, onViewChange, isCollapsed, togg
                             key={item.view}
                             variant="ghost"
                             className={cn(
-                                "justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors",
-                                activeView === item.view ? "bg-sidebar-accent text-sidebar-primary border-r-2 border-sidebar-primary rounded-none" : "text-sidebar-foreground/70",
+                                "justify-start transition-all duration-200",
+                                activeView === item.view
+                                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-[0_0_10px_rgba(34,211,238,0.3)]"
+                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                                 isCollapsed ? "justify-center px-2" : "px-4"
                             )}
                             onClick={() => onViewChange(item.view)}
                         >
-                            <item.icon className={cn("h-5 w-5", isCollapsed ? "mr-0" : "mr-3")} />
+                            <item.icon className={cn("h-5 w-5", isCollapsed ? "mr-0" : "mr-3", activeView === item.view && "stroke-[2.5px]")} />
                             {!isCollapsed && <span>{item.name}</span>}
                         </Button>
                     ))}
