@@ -255,12 +255,6 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
     );
   };
 
-  // const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  //   setPrompt(e.target.value);
-  //   e.target.style.height = "auto";
-  //   e.target.style.height = Math.min(e.target.scrollHeight, 160) + "px";
-  // };
-
   const renderActiveView = () => {
     switch (activeView) {
       case "digest":
@@ -392,7 +386,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
 
             <div className="max-w-[85%] rounded-lg px-2.5 sm:px-3 lg:px-3.5 xl:px-4 py-1.5 sm:py-2 lg:py-2.5 xl:py-3 text-[11px] sm:text-xs lg:text-sm xl:text-base bg-[#171717] text-gray-100">
               <p className="whitespace-pre-wrap break-words">
-                Hi! It's Meeco, How can I help today?
+                Hi! It's Mavin, How can I help today?
               </p>
             </div>
           </div>
