@@ -73,7 +73,7 @@ export function DashboardView() {
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {stats.map((stat) => (
-                    <Card key={stat.title} className="bg-card border-border hover:border-primary/50 transition-colors">
+                    <Card key={stat.title} className="bg-card/50 backdrop-blur-sm border-border hover:border-primary/50 transition-colors rounded-none border-l-2">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground">
                                 {stat.title}
@@ -89,7 +89,7 @@ export function DashboardView() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4 bg-card border-border">
+                <Card className="col-span-4 bg-card/50 backdrop-blur-sm border-border rounded-none">
                     <CardHeader>
                         <CardTitle className="text-card-foreground">Recent AI Tasks</CardTitle>
                         <CardDescription className="text-muted-foreground">
@@ -125,7 +125,11 @@ export function DashboardView() {
                     </CardContent>
                 </Card>
 
-                <Card className="col-span-3 bg-card border-border">
+                <Card className="col-span-3 bg-card/50 backdrop-blur-sm border-border rounded-none relative overflow-hidden">
+                    {/* Corner accents for detail */}
+                    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-primary/20" />
+                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-primary/20" />
+
                     <CardHeader>
                         <CardTitle className="text-card-foreground">Quick Actions</CardTitle>
                         <CardDescription className="text-muted-foreground">
@@ -133,13 +137,14 @@ export function DashboardView() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                        <Button className="w-full justify-start bg-primary hover:bg-primary/90 text-primary-foreground">
+                        <Button className="w-full justify-start bg-primary hover:bg-primary/90 text-primary-foreground rounded-none relative group overflow-hidden">
+                            <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
                             <MessageSquare className="mr-2 h-4 w-4" /> Compose New Email
                         </Button>
-                        <Button variant="outline" className="w-full justify-start border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground">
+                        <Button variant="outline" className="w-full justify-start border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-none hover:border-l-primary hover:border-l-4 transition-all duration-200">
                             <Clock className="mr-2 h-4 w-4" /> Schedule Focus Time
                         </Button>
-                        <Button variant="outline" className="w-full justify-start border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground">
+                        <Button variant="outline" className="w-full justify-start border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-none hover:border-l-primary hover:border-l-4 transition-all duration-200">
                             <Activity className="mr-2 h-4 w-4" /> View Analytics Report
                         </Button>
                     </CardContent>

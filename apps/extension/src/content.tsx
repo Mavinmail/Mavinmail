@@ -1,86 +1,158 @@
 // content.tsx
-// Inject button into Gmail
-const buttonStyles = `
-  #assistant-trigger-btn {
-    position: fixed; bottom: 70px; left: 25px; z-index: 2147483646;
-    cursor: pointer; border-radius: 6px; font-weight: 600;
-    background: #181818; color: white; padding: 10px 16px;
-    border: 1px solid #444; font-family: Inter, sans-serif;
+// Inject Mavin Side Widget into Pages (Shadow DOM Version)
+
+// ---------------------------
+// CONFIGURATION
+// ---------------------------
+const WIDGET_WIDTH = 50;
+const TRIGGER_ZONE = 20;
+const HIDE_ZONE = 150;
+const WIDGET_HOST_ID = "mavin-side-widget-host";
+
+// ---------------------------
+// SHADOW DOM SETUP
+// ---------------------------
+function createWidgetInShadowDOM() {
+  if (document.getElementById(WIDGET_HOST_ID)) return null;
+
+  // 1. Create Host Element
+  const host = document.createElement("div");
+  host.id = WIDGET_HOST_ID;
+  host.style.position = "fixed";
+  host.style.top = "0";
+  host.style.left = "0";
+  host.style.border = "none";
+  host.style.zIndex = "2147483647"; // Max Z-Index
+  host.style.pointerEvents = "none";
+  // Inject into documentElement (<html>) to avoid Body transforms affecting position
+  document.documentElement.appendChild(host);
+
+  // 2. Attach Shadow Root
+  const shadow = host.attachShadow({ mode: "open" });
+
+  // 3. Inject Styles INSIDE Shadow DOM
+  const style = document.createElement("style");
+  style.textContent = `
+    :host {
+      all: initial;
+      font-family: sans-serif;
+      font-size: 16px; /* Force base font size */
+      line-height: 1;
+      text-size-adjust: none; /* Prevent mobile text inflation */
+    }
+    #widget-container {
+      position: fixed;
+      top: 50%;
+      right: -${WIDGET_WIDTH + 10}px;
+      transform: translateY(-50%);
+      width: ${WIDGET_WIDTH}px;
+      height: 60px;
+      background-color: #181818;
+      border-top-left-radius: 12px;
+      border-bottom-left-radius: 12px;
+      box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: right 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      pointer-events: auto;
+      box-sizing: border-box;
+      z-index: 2147483647;
+    }
+
+    #widget-container:hover {
+      right: 0px !important;
+    }
+
+    #widget-container img {
+      width: 28px !important;
+      height: 28px !important;
+      min-width: 28px;
+      min-height: 28px;
+      max-width: 28px;
+      max-height: 28px;
+      object-fit: contain;
+      pointer-events: none;
+      display: block;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+  `;
+  shadow.appendChild(style);
+
+  // 4. Create Widget Elements
+  const widgetContainer = document.createElement("div");
+  widgetContainer.id = "widget-container";
+
+  const logo = document.createElement("img");
+  logo.src = chrome.runtime.getURL("logo.png");
+  logo.alt = "Mavin AI";
+
+  widgetContainer.appendChild(logo);
+  shadow.appendChild(widgetContainer);
+
+  // 5. Add Event Listeners
+  widgetContainer.addEventListener("click", () => {
+    chrome.runtime.sendMessage({ action: "openSidePanel" });
+    hideWidget(true);
+  });
+
+  return widgetContainer; // Return the inner container for animation control
+}
+
+const widgetEl = createWidgetInShadowDOM();
+
+const widgetParams = {
+  isHiddenForcefully: false,
+  isVisible: false
+};
+
+// ---------------------------
+// MOUSE TRACKING & VISIBILITY
+// ---------------------------
+function showWidget() {
+  if (widgetParams.isHiddenForcefully) return;
+  if (widgetEl && !widgetParams.isVisible) {
+    widgetEl.style.right = "0px";
+    widgetParams.isVisible = true;
   }
-`;
-const styleSheet = document.createElement("style");
-styleSheet.innerText = buttonStyles;
-document.head.appendChild(styleSheet);
+}
 
-const triggerButton = document.createElement("button");
-triggerButton.id = "assistant-trigger-btn";
-triggerButton.innerText = "Ask Assistant";
-document.body.appendChild(triggerButton);
+function hideWidget(force = false) {
+  if (widgetEl && (widgetParams.isVisible || force)) {
+    widgetEl.style.right = `-${WIDGET_WIDTH + 10}px`;
+    widgetParams.isVisible = false;
+    if (force) {
+      widgetParams.isHiddenForcefully = true;
+    }
+  }
+}
 
-// ✅ When clicked → tell background to open the side panel
-triggerButton.addEventListener("click", () => {
-  chrome.runtime.sendMessage({ action: "openSidePanel" });
+// Global mouse listener needs to be on document (outside shadow DOM)
+document.addEventListener("mousemove", (e) => {
+  const { clientX } = e;
+  const windowWidth = window.innerWidth;
+
+  if (widgetParams.isHiddenForcefully && clientX < windowWidth - 300) {
+    widgetParams.isHiddenForcefully = false;
+  }
+
+  const distFromRight = windowWidth - clientX;
+
+  if (distFromRight < 50) {
+    showWidget();
+  } else if (distFromRight > HIDE_ZONE) {
+    hideWidget();
+  }
 });
 
+console.log("Mavin AI Widget: Shadow DOM loaded.");
 
-console.log("Meeco AI content script loaded");
-
-// ---------------------------
-// Inject SLIDE-IN PANEL
-// ---------------------------
-const panel = document.createElement("iframe");
-panel.src = chrome.runtime.getURL("panel.html");
-panel.style.position = "fixed";
-panel.style.top = "0";
-panel.style.right = "-420px";
-panel.style.width = "420px";
-panel.style.height = "100vh";
-panel.style.border = "none";
-panel.style.zIndex = "9999999";
-panel.style.transition = "right 0.3s ease";
-document.body.appendChild(panel);
-
-// ---------------------------
-// Inject RIGHT-SIDE NOTCH (like Grammarly)
-// ---------------------------
-const notch = document.createElement("div");
-notch.style.position = "fixed";
-notch.style.top = "40%";
-notch.style.right = "0";
-notch.style.cursor = "pointer";
-notch.style.zIndex = "99999999";
-
-notch.innerHTML = `
-  <div style="
-    background:white;
-    border-radius: 8px 0 0 8px;
-    padding: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  ">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-      viewBox="0 0 24 24" fill="none">
-      <path d="M18.4895 22.669L12.8177 19.563C12.5094 19.3927 
-      12.1337 19.3927 11.8254 19.563L6.15358 22.669C5.24057 
-      23.168 4.24536 22.1552 4.77085 21.2628L11.435 9.97192C11.8313 
-      9.29964 12.8089 9.29964 13.2052 9.97192L19.8693 21.2628C20.3948 
-      22.1552 19.4025 23.168 18.4866 22.669H18.4895ZM12.3216 
-      7.71728C14.127 7.71728 15.589 6.25822 15.589 4.45862C15.589 
-      2.65901 14.127 1.19995 12.3216 1.19995C10.5161 1.19995 9.05409 
-      2.65901 9.05409 4.45862C9.05409 6.25822 10.5161 7.71728 12.3216 
-      7.71728Z" fill="black"/>
-    </svg>
-  </div>
-`;
-document.body.appendChild(notch);
-
-// ---------------------------
-// Open/Close Handler
-// ---------------------------
-notch.addEventListener("click", () => {
-  if (panel.style.right === "0px") {
-    panel.style.right = "-420px";
-  } else {
-    panel.style.right = "0px";
-  }
-});
-
+// Flash on load
+setTimeout(() => {
+  showWidget();
+  setTimeout(() => hideWidget(), 2000);
+}, 1000);

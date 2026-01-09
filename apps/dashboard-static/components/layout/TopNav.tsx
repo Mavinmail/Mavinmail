@@ -55,27 +55,27 @@ export function TopNav({ activeView, onViewChange }: TopNavProps) {
                     <Input
                         type="search"
                         placeholder="Search..."
-                        className="w-full bg-muted/50 border-input pl-9 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/50"
+                        className="w-full bg-muted/50 border-input pl-9 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/50 rounded-none border-b focus:border-b-primary focus-visible:ring-0"
                     />
                 </div>
 
                 <ModeToggle />
 
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary rounded-none">
                     <Book className="h-5 w-5" />
                     <span className="sr-only">Docs</span>
                 </Button>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary">
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary rounded-none">
                     <HelpCircle className="h-5 w-5" />
                     <span className="sr-only">Support</span>
                 </Button>
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                            <Avatar className="h-8 w-8 border border-border">
-                                <AvatarImage src="/avatars/01.png" alt="@user" />
-                                <AvatarFallback className="bg-muted text-primary">JD</AvatarFallback>
+                        <Button variant="ghost" className="relative h-8 w-8 rounded-none">
+                            <Avatar className="h-8 w-8 border border-border rounded-none">
+                                <AvatarImage src="/avatars/01.png" alt="@user" className="rounded-none" />
+                                <AvatarFallback className="bg-muted text-primary rounded-none">JD</AvatarFallback>
                             </Avatar>
                         </Button>
                     </DropdownMenuTrigger>

@@ -49,10 +49,10 @@ export function Sidebar({ className, activeView, onViewChange, isCollapsed, togg
                             key={item.view}
                             variant="ghost"
                             className={cn(
-                                "justify-start transition-all duration-200",
+                                "justify-start transition-all duration-200 rounded-none border-l-2 border-transparent",
                                 activeView === item.view
-                                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-[0_0_10px_rgba(34,211,238,0.3)]"
-                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                                    ? "bg-sidebar-primary/10 text-sidebar-primary border-sidebar-primary"
+                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:border-sidebar-accent-foreground/50",
                                 isCollapsed ? "justify-center px-2" : "px-4"
                             )}
                             onClick={() => onViewChange(item.view)}
