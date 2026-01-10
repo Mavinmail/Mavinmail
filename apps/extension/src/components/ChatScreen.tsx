@@ -55,7 +55,6 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
 
   const [isRagEnabled, setIsRagEnabled] = useState(false); // RAG Default OFF or ON based on preference? Let's default OFF or maintain state. User said "small icon... on and off button".
 
-  //-------------------------------------------------------------------------
 
   const [isDraftMode, setIsDraftMode] = useState(false);
 
@@ -271,7 +270,6 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
   };
 
   // auto complete
-  // @ts-ignore
   const { suggestion, triggerAutocomplete, clearSuggestion, isLoading: isAutocompleteLoading } = useAutocomplete();
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {

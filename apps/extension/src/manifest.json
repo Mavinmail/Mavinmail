@@ -4,7 +4,7 @@
   "version": "1.0",
   "description": "A native side panel assistant.",
   "icons": {
-    "128": "icon.png"
+    "128": "mavinlogo.png"
   },
   "permissions": [
     "sidePanel",
@@ -41,6 +41,7 @@
     {
       "resources": [
         "logo.png",
+        "mavinlogo.png",
         "src/index.css",
         "content/getEmailContent.js"
       ],

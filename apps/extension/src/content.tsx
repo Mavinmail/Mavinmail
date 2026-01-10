@@ -46,7 +46,7 @@ function createWidgetInShadowDOM() {
       right: -${WIDGET_WIDTH + 10}px;
       transform: translateY(-50%);
       width: ${WIDGET_WIDTH}px;
-      height: 60px;
+      height: 30px;
       background-color: #181818;
       border-top-left-radius: 12px;
       border-bottom-left-radius: 12px;
@@ -67,12 +67,12 @@ function createWidgetInShadowDOM() {
     }
 
     #widget-container img {
-      width: 28px !important;
-      height: 28px !important;
-      min-width: 28px;
-      min-height: 28px;
-      max-width: 28px;
-      max-height: 28px;
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px;
+      min-height: 18px;
+      max-width: 18px;
+      max-height: 20px;
       object-fit: contain;
       pointer-events: none;
       display: block;
@@ -88,7 +88,7 @@ function createWidgetInShadowDOM() {
   widgetContainer.id = "widget-container";
 
   const logo = document.createElement("img");
-  logo.src = chrome.runtime.getURL("logo.png");
+  logo.src = chrome.runtime.getURL("mavinlogo.png");
   logo.alt = "Mavin AI";
 
   widgetContainer.appendChild(logo);
