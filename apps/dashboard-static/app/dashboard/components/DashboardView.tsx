@@ -1,16 +1,21 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { RefreshCw, AlertCircle } from 'lucide-react';
+import { RefreshCw, AlertCircle, LogOut } from 'lucide-react';
 import { useDashboard, formatRelativeTime } from '@/lib/hooks/useDashboard';
 import { HeroMetrics } from './HeroMetrics';
 import { ActivityChart } from './ActivityChart';
 import { RecentActivityFeed } from './RecentActivityFeed';
 import { QuickActionsCard } from './QuickActionsCard';
 import { cn } from '@/lib/utils';
+import { signOut } from 'next-auth/react';
 
 export function DashboardView() {
     const { data, isLoading, error, refresh, lastUpdated } = useDashboard();
+
+    const handleLogout = () => {
+        signOut({ callbackUrl: '/login' });
+    };
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -31,6 +36,15 @@ export function DashboardView() {
                             Updated {formatRelativeTime(lastUpdated.toISOString())}
                         </span>
                     )}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleLogout}
+                        className="text-muted-foreground hover:text-destructive"
+                    >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Log out
+                    </Button>
                     <Button
                         variant="outline"
                         size="sm"

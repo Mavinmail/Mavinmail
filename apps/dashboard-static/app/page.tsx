@@ -45,7 +45,7 @@ export default function LandingPage() {
             transition={{ duration: 1, delay: 0.4 }}
             className="flex flex-col sm:flex-row justify-center gap-5 pt-4"
           >
-            <Link href="/sign-up">
+            <Link href="/signup">
               <Button className="h-13 px-10 bg-white text-black rounded-none text-base font-medium tracking-wide hover:bg-neutral-200 shadow-[0_0_40px_rgba(255,255,255,0.15)]">
                 Enter the new inbox
               </Button>
@@ -210,7 +210,7 @@ export default function LandingPage() {
             This is how email <br /> should feel.
           </h2>
 
-          <Link href="/sign-up">
+          <Link href="/signup">
             <Button className="h-14 px-12 bg-white text-black rounded-none text-lg shadow-[0_0_50px_rgba(255,255,255,0.25)]">
               Create your account
             </Button>

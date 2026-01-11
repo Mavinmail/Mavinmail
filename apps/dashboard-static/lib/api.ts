@@ -9,11 +9,17 @@ const api = axios.create({
   },
 });
 
+import { getSession, signOut } from "next-auth/react";
+
 // Request interceptor to add auth token to all requests
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    const selectedModel = localStorage.getItem('selectedModel');
+  async (config) => {
+    // 1. Try to get token from NextAuth session first
+    const session = await getSession();
+    const token = (session as any)?.accessToken || (session as any)?.token;
+
+    // 2. Fallback to localStorage (legacy/dev support) or specialized headers
+    const selectedModel = typeof window !== 'undefined' ? localStorage.getItem('selectedModel') : null;
 
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
@@ -35,10 +41,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear token and redirect to login
-      localStorage.removeItem('token');
-      if (typeof window !== 'undefined') {
-        window.location.href = '/sign-in';
+      // If 401, we should sign out the user from NextAuth too
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        signOut({ callbackUrl: '/login' });
       }
     }
     return Promise.reject(error);
