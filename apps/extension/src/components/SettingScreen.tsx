@@ -1,13 +1,13 @@
 
-
 import { useState, useEffect } from 'react';
 import { syncEmails, updateModelPreference, syncModelPreference } from '../services/api.js';
-
+import { Settings, Brain, RefreshCw, ChevronDown, CheckCircle2, AlertCircle } from 'lucide-react';
 
 function SettingScreen() {
 
-  const [syncStatus, setSyncStatus] = useState('');
+  const [syncStatus, setSyncStatus] = useState<{ message: string; type: 'success' | 'error' | 'loading' } | null>(null);
   const [selectedModel, setSelectedModel] = useState(import.meta.env.VITE_DEFAULT_AI_MODEL || 'google/gemini-2.0-flash-exp:free');
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Load saved model on mount
   useEffect(() => {
@@ -43,17 +43,24 @@ function SettingScreen() {
       console.log('Model synced to backend:', newModel);
     } catch (error) {
       console.error('Failed to sync model to backend:', error);
-      setSyncStatus('Failed to sync model preference.');
+      // setSyncStatus('Failed to sync model preference.'); // Optional: show error toast
     }
   };
 
   const handleSync = async () => {
-    setSyncStatus('Syncing... this may take a moment.');
+    setIsSyncing(true);
+    setSyncStatus({ message: 'Syncing latest emails...', type: 'loading' });
     try {
       const result = await syncEmails();
-      setSyncStatus(result.message);
+      setSyncStatus({ message: result.message, type: 'success' });
     } catch (err: any) {
-      setSyncStatus(err.message);
+      setSyncStatus({ message: err.message || 'Failed to sync.', type: 'error' });
+    } finally {
+      setIsSyncing(false);
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSyncStatus(prev => prev?.type === 'success' ? null : prev);
+      }, 3000);
     }
   };
 
@@ -87,11 +94,23 @@ function SettingScreen() {
           <h2 className="text-sm font-medium text-gray-400 mb-4">Data Sync</h2>
           <button
             onClick={handleSync}
-            className="w-full border-2 border-[#31B8C6] text-[#31B8C6] px-4 py-2 rounded-md font-medium transition-all duration-300 hover:bg-[#31B8C6] hover:text-white disabled:opacity-60 disabled:cursor-not-allowed"
+            disabled={isSyncing}
+            className={`w-full border-2 border-[#31B8C6] text-[#31B8C6] px-4 py-2 rounded-md font-medium transition-all duration-300 hover:bg-[#31B8C6] hover:text-white disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
           >
-            Sync Latest 5 Emails
+            {isSyncing && <RefreshCw className="w-4 h-4 animate-spin" />}
+            {isSyncing ? 'Syncing...' : 'Sync Latest 5 Emails'}
           </button>
-          {syncStatus && <p className="mt-3 text-sm text-gray-300 animate-pulse">{syncStatus}</p>}
+
+          {/* Status Indicator */}
+          {syncStatus && (
+            <div className={`mt-3 flex items-center justify-center gap-1.5 text-xs font-medium animate-in fade-in slide-in-from-top-1 ${syncStatus.type === 'success' ? 'text-emerald-500' :
+                syncStatus.type === 'error' ? 'text-red-400' : 'text-[#22d3ee]'
+              }`}>
+              {syncStatus.type === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> :
+                syncStatus.type === 'error' ? <AlertCircle className="w-3.5 h-3.5" /> : null}
+              {syncStatus.message}
+            </div>
+          )}
         </div>
       </div>
     </div>

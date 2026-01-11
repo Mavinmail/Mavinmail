@@ -6,6 +6,7 @@ import { queryRelevantEmailChunks } from '../services/pineconeService.js';
 import { getEmailById, EmailData } from '../services/emailService.js';
 import { generateAnswerFromContext } from '../services/geminiService.js';
 import { PrismaClient } from '@prisma/client';
+import { logUsage } from '../services/analyticsService.js';
 
 const prisma = new PrismaClient();
 
@@ -80,10 +81,20 @@ Instructions:
 `;
 
     const summaryData = await OpenRouterService.generateJSON(prompt, model);
+
+    // Log usage for analytics
+    if (userId) {
+      logUsage({ userId: Number(userId), action: 'summarize', metadata: { model } });
+    }
+
     res.status(200).json({ summary: summaryData });
 
   } catch (error) {
     console.error('Error summarizing email with AI Service:', error);
+    // Log failed attempt
+    if (userId) {
+      logUsage({ userId: Number(userId), action: 'summarize', success: false });
+    }
     res.status(500).json({ error: 'Failed to summarize the email.' });
   }
 };
@@ -105,8 +116,17 @@ export const getAutocomplete = async (req: Request, res: Response) => {
 
   const prompt = `You are an AI assistant helping a user write. Your task is to provide a short, single-sentence completion for the text they have started. Do not repeat the user's text in your response. Only provide the new, autocompleted part. Be concise.\n\nUser's text:\n---\n${text}\n---`;
 
+  // @ts-ignore
+  const userId = req.user?.userId;
+
   try {
     const suggestion = await OpenRouterService.generateContent(prompt, model);
+
+    // Log usage for analytics
+    if (userId) {
+      logUsage({ userId: Number(userId), action: 'autocomplete', metadata: { model } });
+    }
+
     res.status(200).json({ suggestion });
     console.log('✅ 4. aiController: AI API returned raw suggestion:', suggestion);
 

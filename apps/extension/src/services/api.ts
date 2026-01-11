@@ -130,3 +130,13 @@ export const enhanceText = async (text: string, type: 'formal' | 'concise' | 'ca
     throw error;
   }
 };
+
+export const getUserStats = async () => {
+  const response = await api.get('/dashboard/stats');
+  return response.data;
+};
+
+export const getConnectionStatus = async (): Promise<{ isConnected: boolean; email?: string }> => {
+  const response = await api.get('/user/connection-status');
+  return response.data;
+};

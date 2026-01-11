@@ -1,7 +1,8 @@
 import { type Request, type Response } from 'express';
-import { createUser, loginUser , connectGoogleAccount} from '../services/authService.js';
+import { createUser, loginUser, connectGoogleAccount } from '../services/authService.js';
 import jwt from 'jsonwebtoken';
 import { google } from 'googleapis';
+import { PrismaClient } from '@prisma/client';
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -74,16 +75,73 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
     const { data } = await oauth2.userinfo.get();
 
     if (!access_token || !data.email) {
-        throw new Error('Failed to retrieve token or email from Google.');
+      throw new Error('Failed to retrieve token or email from Google.');
     }
 
     // Save the encrypted tokens to the database
     await connectGoogleAccount({
-        userId,
-        email: data.email,
-        accessToken: access_token,
-        refreshToken: refresh_token || null,
+      userId,
+      email: data.email,
+      accessToken: access_token,
+      refreshToken: refresh_token || null,
     });
+
+    // 4. Perform Initial "Virtual" Sync to populate Dashboard Stats
+    try {
+      const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+      // A. Get Total Emails (Profile)
+      const profileRes = await gmail.users.getProfile({ userId: 'me' });
+      const totalMessages = profileRes.data.messagesTotal || 0;
+
+      // B. Get Emails Received Today (Estimate)
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+      const startEpoch = Math.floor(startOfDay.getTime() / 1000);
+
+      const listRes = await gmail.users.messages.list({
+        userId: 'me',
+        q: `after:${startEpoch}`,
+        maxResults: 1, // We only need the estimate
+        includeSpamTrash: false // usually we want inbox stats
+      });
+
+      const todayCount = listRes.data.resultSizeEstimate || 0;
+      const historicCount = Math.max(0, totalMessages - todayCount);
+
+      const prisma = new PrismaClient();
+
+      // C. Insert SyncHistory Records
+      // Record 1: Historic Data (Backdated to yesterday) - Contributes to Total, but not Today
+      if (historicCount > 0) {
+        await prisma.syncHistory.create({
+          data: {
+            userId,
+            emailCount: historicCount,
+            status: 'success',
+            syncedAt: new Date(Date.now() - 86400000), // 24h ago
+          }
+        });
+      }
+
+      // Record 2: Today's Data (Now) - Contributes to Total AND Today
+      if (todayCount > 0 || historicCount === 0) { // Always create at least one record if empty
+        await prisma.syncHistory.create({
+          data: {
+            userId,
+            emailCount: todayCount,
+            status: 'success',
+            syncedAt: new Date(),
+          }
+        });
+      }
+
+      console.log(`[Initial Sync] Populated stats for user ${userId}: ${todayCount} today, ${historicCount} historic.`);
+
+    } catch (syncError) {
+      console.error('[Initial Sync] Failed to fetch initial stats:', syncError);
+      // We don't block the redirect, just log the error
+    }
 
     // Redirect user back to the dashboard with a success message
     // Support both old dashboard (3000) and new dashboard-static

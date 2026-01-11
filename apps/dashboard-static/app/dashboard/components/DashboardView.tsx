@@ -1,155 +1,83 @@
-"use client"
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Activity, CheckCircle2, Clock, Mail, MessageSquare, TrendingUp } from "lucide-react"
+import { Button } from '@/components/ui/button';
+import { RefreshCw, AlertCircle } from 'lucide-react';
+import { useDashboard, formatRelativeTime } from '@/lib/hooks/useDashboard';
+import { HeroMetrics } from './HeroMetrics';
+import { ActivityChart } from './ActivityChart';
+import { RecentActivityFeed } from './RecentActivityFeed';
+import { QuickActionsCard } from './QuickActionsCard';
+import { cn } from '@/lib/utils';
 
 export function DashboardView() {
-    const stats = [
-        {
-            title: "Total Emails Processed",
-            value: "12,345",
-            change: "+12% from last month",
-            icon: Mail,
-            color: "text-cyan-400",
-        },
-        {
-            title: "Pending Tasks",
-            value: "23",
-            change: "-5% from yesterday",
-            icon: Clock,
-            color: "text-amber-400",
-        },
-        {
-            title: "AI Actions Taken",
-            value: "1,203",
-            change: "+18% from last week",
-            icon: Activity,
-            color: "text-emerald-400",
-        },
-        {
-            title: "Time Saved",
-            value: "45h",
-            change: "Estimated this month",
-            icon: TrendingUp,
-            color: "text-purple-400",
-        },
-    ]
-
-    const tasks = [
-        {
-            id: 1,
-            title: "Review Q3 Report Draft",
-            source: "Gmail",
-            status: "Pending",
-            priority: "High",
-            time: "2h ago",
-        },
-        {
-            id: 2,
-            title: "Schedule meeting with Alex",
-            source: "Outlook",
-            status: "In Progress",
-            priority: "Medium",
-            time: "4h ago",
-        },
-        {
-            id: 3,
-            title: "Reply to invoice query",
-            source: "Gmail",
-            status: "Completed",
-            priority: "Low",
-            time: "1d ago",
-        },
-    ]
+    const { data, isLoading, error, refresh, lastUpdated } = useDashboard();
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex flex-col space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome back, John</h2>
-                <p className="text-muted-foreground">Here's what's happening with your AI assistant today.</p>
+            {/* Header Section */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="space-y-1">
+                    <h2 className="text-3xl font-bold tracking-tight text-foreground">
+                        Welcome back, {data.userName}
+                    </h2>
+                    <p className="text-muted-foreground">
+                        Here's what your AI assistant has been doing.
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    {lastUpdated && (
+                        <span className="text-xs text-muted-foreground">
+                            Updated {formatRelativeTime(lastUpdated.toISOString())}
+                        </span>
+                    )}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={refresh}
+                        disabled={isLoading}
+                        className="border-border text-muted-foreground hover:text-foreground"
+                    >
+                        <RefreshCw className={cn('h-4 w-4 mr-2', isLoading && 'animate-spin')} />
+                        Refresh
+                    </Button>
+                </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {stats.map((stat) => (
-                    <Card key={stat.title} className="bg-card/50 backdrop-blur-sm border-border hover:border-primary/50 transition-colors rounded-none border-l-2">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">
-                                {stat.title}
-                            </CardTitle>
-                            <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-card-foreground">{stat.value}</div>
-                            <p className="text-xs text-muted-foreground">{stat.change}</p>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
+            {/* Error State */}
+            {error && (
+                <div className="flex items-center gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive">
+                    <AlertCircle className="h-5 w-5 shrink-0" />
+                    <div className="flex-1">
+                        <p className="text-sm font-medium">Failed to load dashboard data</p>
+                        <p className="text-xs opacity-80">{error}</p>
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={refresh}
+                        className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                    >
+                        Retry
+                    </Button>
+                </div>
+            )}
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4 bg-card/50 backdrop-blur-sm border-border rounded-none">
-                    <CardHeader>
-                        <CardTitle className="text-card-foreground">Recent AI Tasks</CardTitle>
-                        <CardDescription className="text-muted-foreground">
-                            Your assistant has been busy. Here are the latest actions.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {tasks.map((task) => (
-                                <div
-                                    key={task.id}
-                                    className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border hover:border-primary/30 transition-colors"
-                                >
-                                    <div className="flex items-center space-x-4">
-                                        <div className={`p-2 rounded-full ${task.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'}`}>
-                                            {task.status === 'Completed' ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-foreground">{task.title}</p>
-                                            <p className="text-xs text-muted-foreground flex items-center mt-1">
-                                                <span className="mr-2">{task.source}</span>
-                                                <span>•</span>
-                                                <span className="ml-2">{task.time}</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Badge variant={task.status === 'Completed' ? 'default' : 'outline'} className={task.status === 'Completed' ? 'bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30 border-emerald-500/50' : 'text-muted-foreground border-border'}>
-                                        {task.status}
-                                    </Badge>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
+            {/* Hero Metrics - 8 Cards in 2 Rows */}
+            <HeroMetrics stats={data.stats} isLoading={isLoading} />
 
-                <Card className="col-span-3 bg-card/50 backdrop-blur-sm border-border rounded-none relative overflow-hidden">
-                    {/* Corner accents for detail */}
-                    <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-primary/20" />
-                    <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-primary/20" />
+            {/* Activity Chart - Full Width */}
+            <ActivityChart trends={data.trends} isLoading={isLoading} />
 
-                    <CardHeader>
-                        <CardTitle className="text-card-foreground">Quick Actions</CardTitle>
-                        <CardDescription className="text-muted-foreground">
-                            Common tasks you can perform right now.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid gap-4">
-                        <Button className="w-full justify-start bg-primary hover:bg-primary/90 text-primary-foreground rounded-none relative group overflow-hidden">
-                            <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500" />
-                            <MessageSquare className="mr-2 h-4 w-4" /> Compose New Email
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-none hover:border-l-primary hover:border-l-4 transition-all duration-200">
-                            <Clock className="mr-2 h-4 w-4" /> Schedule Focus Time
-                        </Button>
-                        <Button variant="outline" className="w-full justify-start border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-none hover:border-l-primary hover:border-l-4 transition-all duration-200">
-                            <Activity className="mr-2 h-4 w-4" /> View Analytics Report
-                        </Button>
-                    </CardContent>
-                </Card>
+            {/* Bottom Section - Activity Feed + Quick Actions */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+                <div className="lg:col-span-4">
+                    <RecentActivityFeed activities={data.activities} isLoading={isLoading} />
+                </div>
+                <div className="lg:col-span-3">
+                    <QuickActionsCard />
+                </div>
             </div>
         </div>
-    )
+    );
 }

@@ -8,15 +8,31 @@ const app: Express = express();
 // --- Middleware Setup ---
 
 // 1. Enable Cross-Origin Resource Sharing (CORS)
-const extensionOrigin = 'chrome-extension://pljefinahpbeihfldbpgecimgoadinkh';
 app.use(
   cors({
-    origin: [
-      'http://localhost:3002', // Your Next.js frontend
-      'http://localhost:3000', // Dashboard / Dashboard-static (Next.js default port)
-      extensionOrigin,       // Your Chrome Extension
-      'http://localhost:5173', // Vite dev server
-    ],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      const allowedOrigins = [
+        'http://localhost:3002',
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://localhost:5173',
+        'http://localhost:3001',
+      ];
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow ALL chrome extensions (for development flexibility)
+      if (origin.startsWith('chrome-extension://')) {
+        return callback(null, true);
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     allowedHeaders: ['Content-Type', 'Authorization', 'x-model-id'],
     credentials: true,
   })
@@ -53,5 +69,9 @@ app.use('/api/gmail', gmailRoutes); // <-- Add this line
 import syncRoutes from './routes/syncRoutes.js';
 // ... other app.use() calls
 app.use('/api/sync', syncRoutes); // <-- ADD THIS
+
+// Dashboard routes for analytics and metrics
+import dashboardRoutes from './routes/dashboardRoutes.js';
+app.use('/api/dashboard', dashboardRoutes);
 
 export default app;

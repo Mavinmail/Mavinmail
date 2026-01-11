@@ -15,7 +15,8 @@ import {
     Menu,
     ChevronLeft,
     ChevronRight,
-    Bot
+    Bot,
+    BarChart3
 } from "lucide-react"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -28,6 +29,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Sidebar({ className, activeView, onViewChange, isCollapsed, toggleCollapse }: SidebarProps) {
     const navItems = [
         { name: "Dashboard", view: "dashboard", icon: LayoutDashboard },
+        { name: "Analytics", view: "analytics", icon: BarChart3 },
         { name: "Connected Accounts", view: "accounts", icon: Users },
         { name: "Settings", view: "settings", icon: Settings },
         { name: "Profile", view: "profile", icon: User },

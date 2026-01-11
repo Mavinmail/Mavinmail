@@ -36,3 +36,7 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+
+dashboard_implementation_plan.md
+dashboard_planning.md

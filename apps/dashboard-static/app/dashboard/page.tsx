@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { TopNav } from "@/components/layout/TopNav"
@@ -10,8 +11,10 @@ import { SettingsView } from "./components/SettingsView"
 import { ProfileView } from "./components/ProfileView"
 import { SubscriptionView } from "./components/SubscriptionView"
 import { SupportView } from "./components/SupportView"
+import { AnalyticsView } from "./components/AnalyticsView"
 
-export default function DashboardPage() {
+/** Internal component that uses useSearchParams */
+function DashboardPageContent() {
     const searchParams = useSearchParams()
     const [activeView, setActiveView] = React.useState("dashboard")
     const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false)
@@ -29,6 +32,8 @@ export default function DashboardPage() {
         switch (activeView) {
             case "dashboard":
                 return <DashboardView />
+            case "analytics":
+                return <AnalyticsView />
             case "accounts":
                 return <ConnectedAccountsView />
             case "settings":
@@ -64,5 +69,26 @@ export default function DashboardPage() {
                 </main>
             </div>
         </div>
+    )
+}
+
+/** Loading fallback for Suspense */
+function DashboardLoading() {
+    return (
+        <div className="flex h-screen bg-background text-foreground items-center justify-center">
+            <div className="animate-pulse flex flex-col items-center gap-4">
+                <div className="h-12 w-12 rounded-full bg-primary/20" />
+                <div className="h-4 w-32 rounded bg-muted" />
+            </div>
+        </div>
+    )
+}
+
+/** Main export wrapped in Suspense for useSearchParams */
+export default function DashboardPage() {
+    return (
+        <Suspense fallback={<DashboardLoading />}>
+            <DashboardPageContent />
+        </Suspense>
     )
 }

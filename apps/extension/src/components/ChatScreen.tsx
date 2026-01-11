@@ -342,7 +342,8 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
       // Toggle scroll behavior based on content height
       const shouldScroll = ghostHeight > maxHeight;
       textarea.style.overflowY = shouldScroll ? "auto" : "hidden";
-      ghost.style.overflowY = shouldScroll ? "auto" : "hidden";
+      // Ghost should always be hidden to avoid double scrollbars, we sync via JS
+      ghost.style.overflowY = "hidden";
     }
   }, [prompt, suggestion, maxTextareaHeight]);
 
@@ -350,6 +351,12 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
     setPrompt(e.target.value);
     // Clear suggestion if user types something new that invalidates it
     if (suggestion) clearSuggestion();
+  };
+
+  const handleScroll = () => {
+    if (textareaRef.current && ghostRef.current) {
+      ghostRef.current.scrollTop = textareaRef.current.scrollTop;
+    }
   };
 
 
@@ -488,7 +495,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
           )}
         </div>
 
-        {renderActiveView()} 
+        {renderActiveView()}
 
         {messages.map((msg) => (
           <ChatMessage key={msg.id} message={msg} />
@@ -513,7 +520,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
         )}
 
 
-        
+
       </main>
 
       {/* --- FOOTER REMAINS THE SAME --- */}
@@ -547,6 +554,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
                 ref={textareaRef}
                 value={prompt}
                 onChange={handleInputChange}
+                onScroll={handleScroll}
                 onKeyDown={handleKeyDown}
                 placeholder="Type or hold ^ control to speak"
                 rows={1}
