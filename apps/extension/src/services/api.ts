@@ -140,3 +140,8 @@ export const getConnectionStatus = async (): Promise<{ isConnected: boolean; ema
   const response = await api.get('/user/connection-status');
   return response.data;
 };
+
+export const getRecentActivity = async (limit: number = 10) => {
+  const response = await api.get(`/dashboard/activity?limit=${limit}`);
+  return response.data.activity;
+};

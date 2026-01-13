@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ChatScreen from './components/ChatScreen';
-import PathsScreen from './components/PathsScreen';
+import TasksScreen from './components/TasksScreen';
 import SidebarNav from './components/SidebarNav';
 import ExploreScreen from './components/ExploreScreen';
 import SettingScreen from './components/SettingScreen';
@@ -76,7 +76,7 @@ function App() {
             height: '100%',
           }}
         >
-          <PathsScreen />
+          <TasksScreen />
         </div>
 
         <div
