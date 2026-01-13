@@ -74,4 +74,7 @@ app.use('/api/sync', syncRoutes); // <-- ADD THIS
 import dashboardRoutes from './routes/dashboardRoutes.js';
 app.use('/api/dashboard', dashboardRoutes);
 
+import taskRoutes from './routes/tasks.js';
+app.use('/api/tasks', taskRoutes);
+
 export default app;

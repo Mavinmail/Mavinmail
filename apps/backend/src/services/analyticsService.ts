@@ -283,6 +283,7 @@ export async function getRecentActivity(
         description: getActionDescription(log.action, log.metadata as any),
         timestamp: log.createdAt.toISOString(),
         success: log.success,
+        metadata: log.metadata as any,
     }));
 }
 

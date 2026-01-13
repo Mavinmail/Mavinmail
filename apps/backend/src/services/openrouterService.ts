@@ -35,7 +35,8 @@ export class OpenRouterService {
                             "Authorization": `Bearer ${this.apiKey}`,
                             "HTTP-Referer": "http://localhost:3000",
                             "X-Title": "Email Assistant"
-                        }
+                        },
+                        timeout: 60000 // 60 second timeout
                     }
                 );
 
