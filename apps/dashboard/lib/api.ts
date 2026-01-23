@@ -411,4 +411,73 @@ export const updateUserProfile = async (data: UpdateProfileData): Promise<{
   }
 };
 
+// ====================================================================
+// Admin API Functions
+// ====================================================================
+
+export const getAdminStats = async () => {
+  try {
+    const response = await api.get('/admin/stats');
+    return response.data;
+  } catch (error: any) {
+    console.warn('Admin stats endpoint unavailable:', error.message);
+    throw new Error(error.response?.data?.error || 'Failed to fetch admin stats');
+  }
+};
+
+export const getUsers = async (params: { page?: number; limit?: number; search?: string; role?: string; isActive?: boolean }) => {
+  try {
+    const response = await api.get('/admin/users', { params });
+    return response.data;
+  } catch (error: any) {
+    console.warn('Users endpoint unavailable:', error.message);
+    throw new Error(error.response?.data?.error || 'Failed to fetch users');
+  }
+};
+
+export const getUserDetails = async (id: number) => {
+  try {
+    const response = await api.get(`/admin/users/${id}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to fetch user details');
+  }
+};
+
+export const suspendUser = async (id: number, reason: string) => {
+  try {
+    const response = await api.post(`/admin/users/${id}/suspend`, { reason });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to suspend user');
+  }
+};
+
+export const activateUser = async (id: number) => {
+  try {
+    const response = await api.post(`/admin/users/${id}/activate`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to activate user');
+  }
+};
+
+export const updateUserRole = async (id: number, role: string) => {
+  try {
+    const response = await api.put(`/admin/users/${id}`, { role });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to update user role');
+  }
+};
+
+export const getAuditLogs = async (params: { page?: number; limit?: number; actorId?: number; action?: string }) => {
+  try {
+    const response = await api.get('/admin/audit-logs', { params });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to fetch audit logs');
+  }
+};
+
 export default api;

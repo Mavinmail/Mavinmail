@@ -2,6 +2,23 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import type { User } from "next-auth"
 
+// Extend the User and Session types to include role
+declare module "next-auth" {
+    interface User {
+        role?: string;
+        token?: string;
+    }
+    interface Session {
+        accessToken?: string;
+        user: {
+            id?: string;
+            email?: string | null;
+            name?: string | null;
+            role?: string;
+        }
+    }
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
     secret: process.env.AUTH_SECRET,
     providers: [
@@ -38,6 +55,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                             id: data.user.id.toString(), // NextAuth expects string IDs
                             email: data.user.email,
                             name: data.user.name,
+                            role: data.user.role, // Include role from backend
                             token: data.token, // We need to persist this token
                             ...data.user
                         } as User;
@@ -55,6 +73,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
             const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+            const isOnAdmin = nextUrl.pathname.startsWith('/admin');
+
+            // Protect admin routes - require ADMIN or SUPER_ADMIN role
+            if (isOnAdmin) {
+                if (!isLoggedIn) return false;
+                const userRole = auth?.user?.role;
+                if (userRole !== 'ADMIN' && userRole !== 'SUPER_ADMIN') {
+                    // Redirect unauthorized users to dashboard
+                    return Response.redirect(new URL('/dashboard', nextUrl));
+                }
+                return true;
+            }
 
             if (isOnDashboard) {
                 if (isLoggedIn) return true;
@@ -72,6 +102,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (user) {
                 token.accessToken = user.token;
                 token.userId = user.id;
+                token.role = user.role; // Store role in JWT
             }
             return token;
         },
@@ -79,6 +110,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (token) {
                 session.accessToken = token.accessToken;
                 session.user.id = token.userId;
+                session.user.role = token.role; // Expose role in session
             }
             return session;
         },
@@ -90,3 +122,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         strategy: "jwt",
     },
 })
+

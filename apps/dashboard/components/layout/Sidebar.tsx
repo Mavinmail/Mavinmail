@@ -22,15 +22,22 @@ import {
 import Image from "next/image"
 import mavinlogo from "@/public/mavinlogo.png"
 
+interface NavItem {
+    name: string
+    view: string
+    icon: any
+}
+
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     activeView: string
     onViewChange: (view: string) => void
     isCollapsed: boolean
     toggleCollapse: () => void
+    navItems?: NavItem[]
 }
 
-export function Sidebar({ className, activeView, onViewChange, isCollapsed, toggleCollapse }: SidebarProps) {
-    const navItems = [
+export function Sidebar({ className, activeView, onViewChange, isCollapsed, toggleCollapse, navItems: customNavItems }: SidebarProps) {
+    const defaultNavItems = [
         { name: "Dashboard", view: "dashboard", icon: LayoutDashboard },
         { name: "Tasks", view: "tasks", icon: Calendar },
         { name: "Analytics", view: "analytics", icon: BarChart3 },
@@ -40,6 +47,8 @@ export function Sidebar({ className, activeView, onViewChange, isCollapsed, togg
         { name: "Subscription", view: "subscription", icon: CreditCard },
         { name: "Support", view: "support", icon: HelpCircle },
     ]
+
+    const navItems = customNavItems || defaultNavItems
 
     return (
         <div className={cn("relative flex flex-col h-screen border-r border-sidebar-border bg-sidebar transition-all duration-300", isCollapsed ? "w-16" : "w-64", className)}>
@@ -90,7 +99,7 @@ export function Sidebar({ className, activeView, onViewChange, isCollapsed, togg
     )
 }
 
-export function MobileSidebar({ activeView, onViewChange }: { activeView: string, onViewChange: (view: string) => void }) {
+export function MobileSidebar({ activeView, onViewChange, navItems }: { activeView: string, onViewChange: (view: string) => void, navItems?: NavItem[] }) {
     const [open, setOpen] = React.useState(false)
 
     return (
@@ -113,6 +122,7 @@ export function MobileSidebar({ activeView, onViewChange }: { activeView: string
                     isCollapsed={false}
                     toggleCollapse={() => { }}
                     className="border-none"
+                    navItems={navItems}
                 />
             </SheetContent>
         </Sheet>

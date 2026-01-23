@@ -26,14 +26,15 @@ import { ModeToggle } from "@/components/mode-toggle"
 interface TopNavProps {
     activeView: string
     onViewChange: (view: string) => void
+    navItems?: any[]
 }
 
-export function TopNav({ activeView, onViewChange }: TopNavProps) {
+export function TopNav({ activeView, onViewChange, navItems }: TopNavProps) {
     const viewName = activeView.charAt(0).toUpperCase() + activeView.slice(1).replace("-", " ")
 
     return (
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/80 backdrop-blur-sm px-6">
-            <MobileSidebar activeView={activeView} onViewChange={onViewChange} />
+            <MobileSidebar activeView={activeView} onViewChange={onViewChange} navItems={navItems} />
 
             <div className="flex flex-1 items-center gap-4">
                 <Breadcrumb className="hidden md:flex">

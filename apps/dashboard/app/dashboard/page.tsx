@@ -14,8 +14,13 @@ import { SupportView } from "./components/SupportView"
 import { AnalyticsView } from "./components/AnalyticsView"
 import { TasksView } from "./components/TasksView"
 
+import { useSession } from "next-auth/react"
+import { Shield } from "lucide-react"
+import { LayoutDashboard, Users, BarChart3, Settings, User, CreditCard, HelpCircle, Calendar } from "lucide-react"
+
 /** Internal component that uses useSearchParams */
 function DashboardPageContent() {
+    const { data: session } = useSession()
     const searchParams = useSearchParams()
     const [activeView, setActiveView] = React.useState("dashboard")
     const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false)
@@ -28,6 +33,39 @@ function DashboardPageContent() {
             setActiveView("accounts")
         }
     }, [searchParams])
+
+    // Define navigation items with conditional Admin link
+    const baseNavItems = [
+        { name: "Dashboard", view: "dashboard", icon: LayoutDashboard },
+        { name: "Tasks", view: "tasks", icon: Calendar },
+        { name: "Analytics", view: "analytics", icon: BarChart3 },
+        { name: "Connected Accounts", view: "accounts", icon: Users },
+        { name: "Settings", view: "settings", icon: Settings },
+        { name: "Profile", view: "profile", icon: User },
+        { name: "Subscription", view: "subscription", icon: CreditCard },
+        { name: "Support", view: "support", icon: HelpCircle },
+    ]
+
+    const navItems = React.useMemo(() => {
+        const role = session?.user?.role;
+        if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
+            // Add Admin link at the bottom or strategic place
+            return [
+                ...baseNavItems,
+                { name: "Admin Console", view: "admin_redirect", icon: Shield }
+            ];
+        }
+        return baseNavItems;
+    }, [session]);
+
+    // Handle View Change - special case for admin redirect
+    const handleViewChange = (view: string) => {
+        if (view === 'admin_redirect') {
+            window.location.href = '/admin';
+            return;
+        }
+        setActiveView(view);
+    };
 
     const renderView = () => {
         switch (activeView) {
@@ -57,13 +95,18 @@ function DashboardPageContent() {
             <Sidebar
                 className="hidden md:flex"
                 activeView={activeView}
-                onViewChange={setActiveView}
+                onViewChange={handleViewChange}
                 isCollapsed={isSidebarCollapsed}
                 toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                navItems={navItems}
             />
 
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <TopNav activeView={activeView} onViewChange={setActiveView} />
+                <TopNav
+                    activeView={activeView}
+                    onViewChange={handleViewChange}
+                    navItems={navItems}
+                />
 
                 <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 scroll-smooth">
                     <div className="max-w-7xl mx-auto w-full">
