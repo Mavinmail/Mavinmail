@@ -480,4 +480,121 @@ export const getAuditLogs = async (params: { page?: number; limit?: number; acto
   }
 };
 
+// ====================================================================
+// Support Ticket API Functions
+// ====================================================================
+
+export interface SupportTicket {
+  id: number;
+  userId: number;
+  title: string;
+  description: string;
+  source: string;
+  status: string;
+  priority: string;
+  adminNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+  resolvedBy?: number;
+  user?: {
+    id: number;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  resolver?: {
+    id: number;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}
+
+export interface TicketStats {
+  total: number;
+  byStatus: {
+    open: number;
+    inProgress: number;
+    resolved: number;
+    closed: number;
+  };
+  byPriority: Record<string, number>;
+  bySource: Record<string, number>;
+}
+
+// User: Create a support ticket
+export const createSupportTicket = async (data: { title: string; description: string; priority?: string }) => {
+  try {
+    const response = await api.post('/support/tickets', {
+      ...data,
+      source: 'dashboard',
+    });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to create support ticket');
+  }
+};
+
+// User: Get own tickets
+export const getUserSupportTickets = async (params?: { page?: number; limit?: number; status?: string }) => {
+  try {
+    const response = await api.get('/support/tickets', { params });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to fetch support tickets');
+  }
+};
+
+// Admin: Get all support tickets
+export const getAdminSupportTickets = async (params?: {
+  page?: number;
+  limit?: number;
+  status?: string;
+  priority?: string;
+  source?: string;
+  search?: string;
+}) => {
+  try {
+    const response = await api.get('/admin/support-tickets', { params });
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to fetch support tickets');
+  }
+};
+
+// Admin: Get single ticket by ID
+export const getAdminSupportTicketById = async (id: number) => {
+  try {
+    const response = await api.get(`/admin/support-tickets/${id}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to fetch ticket');
+  }
+};
+
+// Admin: Update a support ticket
+export const updateSupportTicket = async (id: number, data: {
+  status?: string;
+  priority?: string;
+  adminNotes?: string;
+}) => {
+  try {
+    const response = await api.put(`/admin/support-tickets/${id}`, data);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to update ticket');
+  }
+};
+
+// Admin: Get ticket statistics
+export const getSupportTicketStats = async (): Promise<TicketStats> => {
+  try {
+    const response = await api.get('/admin/support-tickets/stats');
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to fetch ticket stats');
+  }
+};
+
 export default api;
