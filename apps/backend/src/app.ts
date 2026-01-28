@@ -81,4 +81,8 @@ app.use('/api/tasks', taskRoutes);
 import adminRoutes from './routes/adminRoutes.js';
 app.use('/api/admin', adminRoutes);
 
+// Support ticket routes for users to create/view their tickets
+import supportRoutes from './routes/supportRoutes.js';
+app.use('/api/support', supportRoutes);
+
 export default app;

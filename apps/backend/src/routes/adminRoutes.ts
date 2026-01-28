@@ -10,6 +10,12 @@ import {
     getPlatformStats,
     getAuditLogs,
 } from '../controllers/adminController.js';
+import {
+    getAllTickets,
+    getAdminTicketById,
+    updateTicket,
+    getTicketStats,
+} from '../controllers/supportController.js';
 
 const router = Router();
 
@@ -49,6 +55,22 @@ router.post('/users/:id/activate', requireAdmin, activateUser);
 router.get('/stats', requireAdmin, getPlatformStats);
 
 // ============================================================================
+// SUPPORT TICKET ROUTES - Requires ADMIN or SUPER_ADMIN
+// ============================================================================
+
+// GET /api/admin/support-tickets/stats - Get ticket statistics
+router.get('/support-tickets/stats', requireAdmin, getTicketStats);
+
+// GET /api/admin/support-tickets - List all support tickets
+router.get('/support-tickets', requireAdmin, getAllTickets);
+
+// GET /api/admin/support-tickets/:id - Get ticket details
+router.get('/support-tickets/:id', requireAdmin, getAdminTicketById);
+
+// PUT /api/admin/support-tickets/:id - Update ticket status/priority
+router.put('/support-tickets/:id', requireAdmin, updateTicket);
+
+// ============================================================================
 // AUDIT LOG ROUTES - Requires SUPER_ADMIN only
 // ============================================================================
 
@@ -56,3 +78,4 @@ router.get('/stats', requireAdmin, getPlatformStats);
 router.get('/audit-logs', requireSuperAdmin, getAuditLogs);
 
 export default router;
+
