@@ -23,6 +23,8 @@ import {
 import { MobileSidebar } from "./Sidebar"
 import { ModeToggle } from "@/components/mode-toggle"
 
+import { useSession, signOut } from "next-auth/react"
+
 interface TopNavProps {
     activeView: string
     onViewChange: (view: string) => void
@@ -30,6 +32,7 @@ interface TopNavProps {
 }
 
 export function TopNav({ activeView, onViewChange, navItems }: TopNavProps) {
+    const { data: session } = useSession()
     const viewName = activeView.charAt(0).toUpperCase() + activeView.slice(1).replace("-", " ")
 
     return (
@@ -75,17 +78,21 @@ export function TopNav({ activeView, onViewChange, navItems }: TopNavProps) {
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-8 w-8 rounded-none">
                             <Avatar className="h-8 w-8 border border-border rounded-none">
-                                <AvatarImage src="/avatars/01.png" alt="@user" className="rounded-none" />
-                                <AvatarFallback className="bg-muted text-primary rounded-none">JD</AvatarFallback>
+                                <AvatarImage src={session?.user?.image || "/avatars/01.png"} alt="@user" className="rounded-none" />
+                                <AvatarFallback className="bg-muted text-primary rounded-none">
+                                    {session?.user?.name ? session.user.name.substring(0, 2).toUpperCase() : "U"}
+                                </AvatarFallback>
                             </Avatar>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56 bg-card border-border text-foreground" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">John Doe</p>
+                                <p className="text-sm font-medium leading-none">
+                                    {session?.user?.name || "User"}
+                                </p>
                                 <p className="text-xs leading-none text-muted-foreground">
-                                    john@example.com
+                                    {session?.user?.email || "user@example.com"}
                                 </p>
                             </div>
                         </DropdownMenuLabel>
@@ -97,7 +104,10 @@ export function TopNav({ activeView, onViewChange, navItems }: TopNavProps) {
                             Settings
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-border" />
-                        <DropdownMenuItem className="focus:bg-muted focus:text-primary text-destructive">
+                        <DropdownMenuItem
+                            className="focus:bg-muted focus:text-primary text-destructive"
+                            onClick={() => signOut({ callbackUrl: '/login' })}
+                        >
                             Log out
                         </DropdownMenuItem>
                     </DropdownMenuContent>

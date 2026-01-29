@@ -74,7 +74,9 @@ export function useDashboard(): UseDashboardReturn {
                 activities,
                 trends,
                 userEmail: profile.email,
-                userName: profile.name || profile.email.split('@')[0] || 'User',
+                userName: (profile.firstName && profile.lastName)
+                    ? `${profile.firstName} ${profile.lastName}`
+                    : (profile.firstName || profile.email.split('@')[0] || 'User'),
             });
             setLastUpdated(new Date());
         } catch (err) {
