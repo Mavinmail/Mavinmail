@@ -435,6 +435,15 @@ export const getUsers = async (params: { page?: number; limit?: number; search?:
   }
 };
 
+export const createAdminUser = async (data: any) => {
+  try {
+    const response = await api.post('/admin/users', data);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to create user');
+  }
+};
+
 export const getUserDetails = async (id: number) => {
   try {
     const response = await api.get(`/admin/users/${id}`);
