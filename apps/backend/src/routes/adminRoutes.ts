@@ -15,6 +15,7 @@ import {
     getAdminTicketById,
     updateTicket,
     getTicketStats,
+    deleteAdminTicket,
 } from '../controllers/supportController.js';
 
 const router = Router();
@@ -69,6 +70,9 @@ router.get('/support-tickets/:id', requireAdmin, getAdminTicketById);
 
 // PUT /api/admin/support-tickets/:id - Update ticket status/priority
 router.put('/support-tickets/:id', requireAdmin, updateTicket);
+
+// DELETE /api/admin/support-tickets/:id - Delete a support ticket
+router.delete('/support-tickets/:id', requireAdmin, deleteAdminTicket);
 
 // ============================================================================
 // AUDIT LOG ROUTES - Requires SUPER_ADMIN only

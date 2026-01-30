@@ -597,4 +597,14 @@ export const getSupportTicketStats = async (): Promise<TicketStats> => {
   }
 };
 
+// Admin: Delete a support ticket
+export const deleteSupportTicket = async (id: number) => {
+  try {
+    const response = await api.delete(`/admin/support-tickets/${id}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to delete ticket');
+  }
+};
+
 export default api;

@@ -24,6 +24,7 @@ import {
     getAdminSupportTickets,
     getSupportTicketStats,
     updateSupportTicket,
+    deleteSupportTicket,
     SupportTicket,
     TicketStats,
 } from "@/lib/api"
@@ -60,6 +61,7 @@ export function SupportTicketsView() {
     const [statusFilter, setStatusFilter] = React.useState<string>("")
     const [priorityFilter, setPriorityFilter] = React.useState<string>("")
     const [updating, setUpdating] = React.useState(false)
+    const [deleting, setDeleting] = React.useState(false)
     const [adminNotes, setAdminNotes] = React.useState("")
     const [newStatus, setNewStatus] = React.useState("")
     const [newPriority, setNewPriority] = React.useState("")
@@ -116,6 +118,23 @@ export function SupportTicketsView() {
             console.error("Failed to update ticket:", error)
         } finally {
             setUpdating(false)
+        }
+    }
+
+    const handleDeleteTicket = async () => {
+        if (!selectedTicket) return
+        if (!confirm("Are you sure you want to delete this ticket? This action cannot be undone.")) return
+
+        setDeleting(true)
+        try {
+            await deleteSupportTicket(selectedTicket.id)
+            await loadData()
+            setSelectedTicket(null)
+        } catch (error) {
+            console.error("Failed to delete ticket:", error)
+            alert("Failed to delete ticket. Please try again.")
+        } finally {
+            setDeleting(false)
         }
     }
 
@@ -257,20 +276,39 @@ export function SupportTicketsView() {
                                 />
                             </div>
 
-                            <Button
-                                onClick={handleUpdateTicket}
-                                disabled={updating}
-                                className="bg-primary hover:bg-primary/90"
-                            >
-                                {updating ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Updating...
-                                    </>
-                                ) : (
-                                    "Save Changes"
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    onClick={handleUpdateTicket}
+                                    disabled={updating || deleting}
+                                    className="bg-primary hover:bg-primary/90"
+                                >
+                                    {updating ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Updating...
+                                        </>
+                                    ) : (
+                                        "Save Changes"
+                                    )}
+                                </Button>
+
+                                {(selectedTicket.status === "RESOLVED" || selectedTicket.status === "CLOSED") && (
+                                    <Button
+                                        variant="destructive"
+                                        onClick={handleDeleteTicket}
+                                        disabled={updating || deleting}
+                                    >
+                                        {deleting ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                Deleting...
+                                            </>
+                                        ) : (
+                                            "Delete Ticket"
+                                        )}
+                                    </Button>
                                 )}
-                            </Button>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>

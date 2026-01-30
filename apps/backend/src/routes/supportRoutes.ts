@@ -4,6 +4,7 @@ import {
     createTicket,
     getUserTickets,
     getTicketById,
+    deleteUserTicket,
 } from '../controllers/supportController.js';
 
 const router = Router();
@@ -24,4 +25,8 @@ router.get('/tickets', getUserTickets);
 // GET /api/support/tickets/:id - Get a specific ticket
 router.get('/tickets/:id', getTicketById);
 
+// DELETE /api/support/tickets/:id - Delete a user's own ticket
+router.delete('/tickets/:id', deleteUserTicket);
+
 export default router;
+

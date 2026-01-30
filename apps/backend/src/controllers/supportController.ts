@@ -228,3 +228,62 @@ export const getTicketStats = async (req: Request, res: Response) => {
         res.status(500).json({ error: error.message || 'Failed to get ticket stats' });
     }
 };
+
+/**
+ * DELETE /api/support/tickets/:id
+ * Delete a user's own ticket
+ */
+export const deleteUserTicket = async (req: Request, res: Response) => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    try {
+        const userId = authenticatedReq.user!.userId;
+        const ticketId = parseInt(req.params.id);
+
+        if (isNaN(ticketId)) {
+            return res.status(400).json({ error: 'Invalid ticket ID' });
+        }
+
+        const result = await supportService.deleteUserTicket(ticketId, userId);
+
+        res.json({
+            message: 'Ticket deleted successfully',
+            ...result,
+        });
+    } catch (error: any) {
+        console.error('Delete user ticket error:', error);
+        if (error.message === 'Ticket not found') {
+            return res.status(404).json({ error: 'Ticket not found' });
+        }
+        if (error.message === 'Access denied') {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+        res.status(500).json({ error: error.message || 'Failed to delete ticket' });
+    }
+};
+
+/**
+ * DELETE /api/admin/support-tickets/:id
+ * Delete a support ticket (admin only)
+ */
+export const deleteAdminTicket = async (req: Request, res: Response) => {
+    try {
+        const ticketId = parseInt(req.params.id);
+
+        if (isNaN(ticketId)) {
+            return res.status(400).json({ error: 'Invalid ticket ID' });
+        }
+
+        const result = await supportService.deleteTicket(ticketId);
+
+        res.json({
+            message: 'Ticket deleted successfully',
+            ...result,
+        });
+    } catch (error: any) {
+        console.error('Delete admin ticket error:', error);
+        if (error.message === 'Ticket not found') {
+            return res.status(404).json({ error: 'Ticket not found' });
+        }
+        res.status(500).json({ error: error.message || 'Failed to delete ticket' });
+    }
+};

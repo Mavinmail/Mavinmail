@@ -312,3 +312,50 @@ export const getTicketStats = async () => {
         bySource: sourceBreakdown,
     };
 };
+
+// ============================================================================
+// TICKET DELETION
+// ============================================================================
+
+/**
+ * Delete a ticket by ID (Admin only - typically for resolved/closed tickets)
+ */
+export const deleteTicket = async (ticketId: number) => {
+    const ticket = await prisma.supportTicket.findUnique({
+        where: { id: ticketId },
+    });
+
+    if (!ticket) {
+        throw new Error('Ticket not found');
+    }
+
+    await prisma.supportTicket.delete({
+        where: { id: ticketId },
+    });
+
+    return { success: true, deletedId: ticketId };
+};
+
+/**
+ * Delete a user's own ticket (User can only delete their own tickets)
+ */
+export const deleteUserTicket = async (ticketId: number, userId: number) => {
+    const ticket = await prisma.supportTicket.findUnique({
+        where: { id: ticketId },
+    });
+
+    if (!ticket) {
+        throw new Error('Ticket not found');
+    }
+
+    if (ticket.userId !== userId) {
+        throw new Error('Access denied');
+    }
+
+    await prisma.supportTicket.delete({
+        where: { id: ticketId },
+    });
+
+    return { success: true, deletedId: ticketId };
+};
+

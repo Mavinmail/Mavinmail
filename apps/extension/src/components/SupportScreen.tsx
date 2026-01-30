@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { createSupportTicket, getUserSupportTickets, SupportTicket } from "../services/api";
-import { Loader2, CheckCircle, AlertCircle, Clock, XCircle } from "lucide-react";
+import { createSupportTicket, getUserSupportTickets, deleteSupportTicket, SupportTicket } from "../services/api";
+import { Loader2, CheckCircle, AlertCircle, Clock, XCircle, Trash2 } from "lucide-react";
 
 export default function SupportScreen() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -13,6 +13,7 @@ export default function SupportScreen() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [userTickets, setUserTickets] = useState<SupportTicket[]>([]);
   const [loadingTickets, setLoadingTickets] = useState(true);
+  const [deletingTicketId, setDeletingTicketId] = useState<number | null>(null);
   const [showMyTickets, setShowMyTickets] = useState(false);
 
   const faqs = [
@@ -132,6 +133,21 @@ export default function SupportScreen() {
     }
   };
 
+  const handleDeleteTicket = async (ticketId: number) => {
+    if (!confirm("Are you sure you want to delete this ticket?")) return;
+
+    setDeletingTicketId(ticketId);
+    try {
+      await deleteSupportTicket(ticketId);
+      loadUserTickets();
+    } catch (error) {
+      console.error("Failed to delete ticket:", error);
+      alert("Failed to delete ticket. Please try again.");
+    } finally {
+      setDeletingTicketId(null);
+    }
+  };
+
   return (
     <div className="flex h-screen bg-[#121212] text-white overflow-hidden">
       {/* Scrollable content area only */}
@@ -147,8 +163,8 @@ export default function SupportScreen() {
             <button
               onClick={() => setShowMyTickets(false)}
               className={`px-4 py-2 text-sm rounded-lg transition ${!showMyTickets
-                  ? "bg-[#22d3ee] text-[#121212] font-semibold"
-                  : "bg-[#171717] text-gray-400 hover:text-white"
+                ? "bg-[#22d3ee] text-[#121212] font-semibold"
+                : "bg-[#171717] text-gray-400 hover:text-white"
                 }`}
             >
               FAQ
@@ -156,8 +172,8 @@ export default function SupportScreen() {
             <button
               onClick={() => setShowMyTickets(true)}
               className={`px-4 py-2 text-sm rounded-lg transition ${showMyTickets
-                  ? "bg-[#22d3ee] text-[#121212] font-semibold"
-                  : "bg-[#171717] text-gray-400 hover:text-white"
+                ? "bg-[#22d3ee] text-[#121212] font-semibold"
+                : "bg-[#171717] text-gray-400 hover:text-white"
                 }`}
             >
               My Tickets ({userTickets.length})
@@ -230,9 +246,26 @@ export default function SupportScreen() {
                           </span>
                         </div>
                       </div>
-                      <span className="text-xs px-2 py-1 rounded bg-[#262626] text-gray-400">
-                        {ticket.status.replace("_", " ")}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2 py-1 rounded bg-[#262626] text-gray-400">
+                          {ticket.status.replace("_", " ")}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTicket(ticket.id);
+                          }}
+                          disabled={deletingTicketId === ticket.id}
+                          className="p-1 rounded hover:bg-red-500/20 text-gray-400 hover:text-red-400 transition"
+                          title="Delete ticket"
+                        >
+                          {deletingTicketId === ticket.id ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={14} />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))

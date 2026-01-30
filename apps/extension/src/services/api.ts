@@ -45,6 +45,9 @@ export const login = async (credentials: { email: string; password: string }) =>
     // The response from your backend should contain the token
     return response.data;
   } catch (error: any) {
+    if (error.response?.status === 429) {
+      throw new Error(error.response.data.error || 'Too many attempts. Please try again after 15 minutes.');
+    }
     throw new Error(error.response?.data?.error || 'Login failed. Please check your credentials.');
   }
 };
@@ -199,6 +202,15 @@ export const getUserSupportTickets = async (): Promise<{ tickets: SupportTicket[
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.error || 'Failed to get support tickets.');
+  }
+};
+
+export const deleteSupportTicket = async (id: number): Promise<{ success: boolean; deletedId: number }> => {
+  try {
+    const response = await api.delete(`/support/tickets/${id}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to delete support ticket.');
   }
 };
 
