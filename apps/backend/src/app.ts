@@ -5,6 +5,9 @@ import authRoutes from './routes/authRoutes.js';
 // Create an instance of the Express application
 const app: Express = express();
 
+// Trust the first proxy (essential for rate limiting behind Nginx/Heroku/etc)
+app.set('trust proxy', 1);
+
 // --- Middleware Setup ---
 
 // 1. Enable Cross-Origin Resource Sharing (CORS)

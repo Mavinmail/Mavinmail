@@ -1,17 +1,18 @@
 import { Router } from 'express';
-import { signup, login , getGoogleAuthUrl, handleGoogleCallback} from '../controllers/authController.js';
+import { signup, login, getGoogleAuthUrl, handleGoogleCallback } from '../controllers/authController.js';
+import { authLimiter } from '../middleware/rateLimitMiddleware.js';
 
 const router = Router();
 
 // @route   POST api/auth/signup
 // @desc    Register a new user
 // @access  Public
-router.post('/signup', signup);
+router.post('/signup', authLimiter, signup);
 
 // @route   POST api/auth/login
 // @desc    Authenticate user & get token
 // @access  Public
-router.post('/login', login);
+router.post('/login', authLimiter, login);
 
 
 
