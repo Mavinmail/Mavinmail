@@ -4,6 +4,7 @@ import { requireAdmin, requireSuperAdmin } from '../middleware/roleMiddleware.js
 import {
     listUsers,
     getUserById,
+    createUser,
     updateUserRole,
     suspendUser,
     activateUser,
@@ -33,6 +34,9 @@ router.use(authMiddleware);
 // USER MANAGEMENT ROUTES - Requires ADMIN or SUPER_ADMIN
 // ============================================================================
 
+// POST /api/admin/users - Create a new user
+router.post('/users', requireAdmin, createUser);
+
 // GET /api/admin/users - List all users (paginated)
 router.get('/users', requireAdmin, listUsers);
 
@@ -47,6 +51,7 @@ router.post('/users/:id/suspend', requireAdmin, suspendUser);
 
 // POST /api/admin/users/:id/activate - Activate user
 router.post('/users/:id/activate', requireAdmin, activateUser);
+
 
 // ============================================================================
 // PLATFORM STATS ROUTES - Requires ADMIN or SUPER_ADMIN

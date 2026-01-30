@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 import { UserRole } from '../middleware/roleMiddleware.js';
 
 const prisma = new PrismaClient();
@@ -118,6 +119,64 @@ export const getUserById = async (id: number) => {
 // ============================================================================
 // USER MANAGEMENT
 // ============================================================================
+
+interface CreateUserParams {
+    email: string;
+    password: string;
+    role?: UserRole;
+    firstName?: string;
+    lastName?: string;
+}
+
+export const createUserByAdmin = async (
+    params: CreateUserParams,
+    actorId: number,
+    ipAddress?: string
+) => {
+    const { email, password, role = 'USER', firstName, lastName } = params;
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+        throw new Error('User with this email already exists');
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user
+    const user = await prisma.user.create({
+        data: {
+            email,
+            password: hashedPassword,
+            role,
+            firstName,
+            lastName,
+            preferredModel: process.env.DEFAULT_AI_MODEL || 'google/gemini-2.0-flash-exp:free',
+        },
+        select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            isActive: true,
+            createdAt: true,
+        },
+    });
+
+    // Log the action
+    await logAdminAction({
+        actorId,
+        action: 'USER_CREATED',
+        targetType: 'USER',
+        targetId: user.id,
+        metadata: { email, role, firstName, lastName },
+        ipAddress,
+    });
+
+    return user;
+};
 
 export const updateUserRole = async (
     userId: number,

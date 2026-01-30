@@ -8,6 +8,70 @@ import { canModifyRole, canAssignRole, UserRole } from '../middleware/roleMiddle
 // ============================================================================
 
 /**
+ * POST /api/admin/users
+ * Create a new user (admin only)
+ */
+export const createUser = async (req: Request, res: Response) => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    try {
+        const { email, password, role, firstName, lastName } = req.body;
+        const actorId = authenticatedReq.user!.userId;
+        const actorRole = authenticatedReq.user!.role;
+
+        // Validate required fields
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Invalid email format' });
+        }
+
+        // Validate password length
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters' });
+        }
+
+        // Validate role if provided
+        const validRoles: UserRole[] = ['USER', 'ADMIN', 'SUPER_ADMIN'];
+        const targetRole = role || 'USER';
+        if (!validRoles.includes(targetRole)) {
+            return res.status(400).json({ error: 'Invalid role', validRoles });
+        }
+
+        // Check if actor can assign this role
+        if (!canAssignRole(actorRole, targetRole)) {
+            return res.status(403).json({
+                error: 'Insufficient permissions to assign this role',
+                yourRole: actorRole,
+                targetRole: targetRole
+            });
+        }
+
+        const ipAddress = req.ip || req.headers['x-forwarded-for'] as string;
+
+        const user = await adminService.createUserByAdmin(
+            { email, password, role: targetRole, firstName, lastName },
+            actorId,
+            ipAddress
+        );
+
+        res.status(201).json({
+            message: 'User created successfully',
+            user
+        });
+    } catch (error: any) {
+        console.error('Create user error:', error);
+        if (error.message === 'User with this email already exists') {
+            return res.status(409).json({ error: error.message });
+        }
+        res.status(500).json({ error: error.message || 'Failed to create user' });
+    }
+};
+
+/**
  * GET /api/admin/users
  * List all users with pagination and search
  */
