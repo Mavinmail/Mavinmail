@@ -56,8 +56,13 @@ export function SignupForm({
             })
 
             if (loginRes?.error) {
-                // Should not happen if signup worked
-                router.push("/login")
+                // If auto-login fails, show the error (likely rate limit or config issue)
+                // Just like in login-form.tsx
+                if (loginRes.error === "Configuration") {
+                    setError("Signup successful, but auto-login failed. Please log in manually.");
+                } else {
+                    setError(loginRes.code || loginRes.error || "Signup successful, but login failed.");
+                }
             } else {
                 router.push("/dashboard")
             }

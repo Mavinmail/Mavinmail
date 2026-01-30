@@ -36,7 +36,24 @@ export function LoginForm({
             })
 
             if (res?.error) {
-                setError("Invalid email or password")
+                // Determine error message: NextAuth generic "CredentialsSignin" often just means verification failed.
+                // However, since we threw an error with a specific message in authorize(), NextAuth might wrap it.
+                // Usually it comes back as `code` or `error`.
+                // For better UX, we'll try to show the error directly if it's readable, otherwise generic.
+
+                // If the backend sent "Too many login attempts...", we want to show that.
+                // Note: NextAuth v5 client-side error handling can be tricky with Credentials.
+                // The error object might be a simple string "CredentialsSignin" or the actual message.
+
+                // Keep it simple for now: Try to show the error text, or fallback.
+                // Keep it simple for now: Try to show the error text, or fallback.
+                if (res.error === "Configuration") {
+                    setError("Invalid email or password");
+                } else if (res.code === "RateLimited" || res.error === "RateLimited") {
+                    setError("Too many login attempts. Please try again after 15 minutes.");
+                } else {
+                    setError("Invalid email or password");
+                }
             } else {
                 router.push("/dashboard")
             }

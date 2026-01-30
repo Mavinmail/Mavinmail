@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, { AuthError, CredentialsSignin } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import type { User } from "next-auth"
 
@@ -20,6 +20,14 @@ declare module "next-auth" {
     }
 }
 
+class RateLimitedError extends CredentialsSignin {
+    code = "RateLimited"
+}
+
+class InvalidCredentialsError extends CredentialsSignin {
+    code = "InvalidCredentials"
+}
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
     secret: process.env.AUTH_SECRET,
     providers: [
@@ -31,7 +39,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             authorize: async (credentials) => {
                 try {
                     if (!credentials?.email || !credentials?.password) {
-                        return null;
+                        throw new InvalidCredentialsError();
                     }
 
                     // Call existing backend API
@@ -47,7 +55,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     const data = await res.json();
 
                     if (!res.ok) {
-                        throw new Error(data.error || "Login failed");
+                        if (res.status === 429) {
+                            throw new RateLimitedError();
+                        }
+
+                        // Default to authentication failure
+                        throw new InvalidCredentialsError();
                     }
 
                     if (res.ok && data.user) {
@@ -63,9 +76,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     }
 
                     return null;
-                } catch (error) {
+                } catch (error: any) {
                     console.error("Auth Error:", error);
-                    return null;
+                    // If it's already an AuthError, rethrow it
+                    if (error instanceof AuthError) throw error;
+                    // Otherwise wrap it
+                    throw new InvalidCredentialsError();
                 }
             },
         }),
