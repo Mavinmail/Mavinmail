@@ -88,4 +88,8 @@ app.use('/api/admin', adminRoutes);
 import supportRoutes from './routes/supportRoutes.js';
 app.use('/api/support', supportRoutes);
 
+// AI Model management routes
+import modelRoutes from './routes/modelRoutes.js';
+app.use('/api/models', modelRoutes);
+
 export default app;

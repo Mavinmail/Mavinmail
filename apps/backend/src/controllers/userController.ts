@@ -72,15 +72,26 @@ export const getPreferences = async (req: any, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: Number(userId) },
-      select: { preferredModel: true }, // Only fetch what we need
+      select: { preferredModel: true },
     });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    // If user has no preference, get the system default (from DB or env)
+    let preferredModel = user.preferredModel;
+    if (!preferredModel) {
+      // Get default from database first, then fall back to env
+      const defaultModel = await prisma.aIModel.findFirst({
+        where: { isDefault: true, isActive: true },
+        select: { modelId: true },
+      });
+      preferredModel = defaultModel?.modelId || process.env.DEFAULT_AI_MODEL || process.env.FALLBACK_AI_MODEL || null;
+    }
+
     res.status(200).json({
-      preferredModel: user.preferredModel || process.env.DEFAULT_AI_MODEL || 'google/gemini-2.0-flash-exp:free',
+      preferredModel,
     });
   } catch (error) {
     console.error('Error fetching preferences:', error);

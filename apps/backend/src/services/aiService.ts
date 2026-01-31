@@ -1,102 +1,201 @@
 import { OpenRouterService } from "./openrouterService.js";
 
 /**
- * Takes an array of email contents and generates a single, cohesive "Daily Digest".
- * @param emailContents An array of strings, where each string contains an email's details.
- * @param model Optional model ID to use for generation.
- * @returns The generated digest as a single formatted string.
+ * Interface for structured email input
  */
-// Define interface for structured email input
 interface EmailInput {
   id: string;
   category: string;
   content: string;
 }
 
+interface DigestItem {
+  id: string;
+  category: string;
+  email_title: string;
+  sender: string;
+  summary: string;
+  action_items: string[];
+  important_details: string[];
+  intent: string;
+  sentiment: string;
+}
+
+interface DigestSection {
+  title: string;
+  items: DigestItem[];
+}
+
+interface DigestResult {
+  title: string;
+  sections: DigestSection[];
+}
+
+// Process emails in smaller batches to avoid output truncation on free models
+const BATCH_SIZE = 3;
+
 /**
  * Takes an array of email objects and generates a cohesive "Daily Digest".
+ * Processes in batches to avoid output length limits on free models.
  * @param emailData Array of email objects with id, category, and content.
  * @param model Optional model ID to use for generation.
- * @returns The generated digest as a single formatted string.
+ * @returns The generated digest as a JSON string.
  */
 export const summarizeEmailBatch = async (emailData: EmailInput[], model?: string): Promise<string> => {
   if (!emailData || emailData.length === 0) {
     throw new Error("No emails provided for summarization.");
   }
 
-  console.log(`[AI Service] Processing ${emailData.length} emails in a single batch...`);
+  console.log(`[AI Service] Processing ${emailData.length} emails in batches of ${BATCH_SIZE}...`);
 
-  // Format inputs with IDs to enforce 1:1 mapping
-  const formattedInput = emailData.map(e =>
-    `--- EMAIL START ---\nID: ${e.id}\nCATEGORY: ${e.category}\n${e.content}\n--- EMAIL END ---`
-  ).join('\n\n');
+  // Split into batches
+  const batches: EmailInput[][] = [];
+  for (let i = 0; i < emailData.length; i += BATCH_SIZE) {
+    batches.push(emailData.slice(i, i + BATCH_SIZE));
+  }
 
-  const totalEmails = emailData.length;
+  console.log(`[AI Service] Created ${batches.length} batches`);
 
-  const prompt = `
-You must return ONLY valid JSON that matches the schema below. No other text.
+  // Process each batch
+  const allItems: DigestItem[] = [];
 
-{
-  "title": "Daily Digest",
-  "sections": [
-    {
-      "title": "Section Title (e.g., 'Primary', 'Social', 'Promotions', 'Updates' or 'Overview')",
-      "items": [
-        {
-          "id": "Exact ID from input",
-          "category": "Primary | Social | Promotions | Updates",
-          "email_title": "Short Email Title",
-          "sender": "Sender Name",
-          "summary": "Detailed summary (MINIMUM 3-5 sentences) covering all key points.",
-          "action_items": ["Task 1", "Task 2"],
-          "important_details": ["Date: ...", "Deadline: ..."],
-          "intent": "Request | Informational | Urgent | Meeting | Other",
-          "sentiment": "Positive | Neutral | Negative | Urgent"
-        }
-      ]
+  for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+    const batch = batches[batchIndex];
+    console.log(`[AI Service] Processing batch ${batchIndex + 1}/${batches.length} (${batch.length} emails)...`);
+
+    try {
+      const batchItems = await processBatch(batch, model);
+      allItems.push(...batchItems);
+      console.log(`[AI Service] Batch ${batchIndex + 1} complete: got ${batchItems.length} summaries`);
+    } catch (error) {
+      console.error(`[AI Service] Batch ${batchIndex + 1} failed:`, error);
+      // Add placeholder items for failed emails
+      for (const email of batch) {
+        allItems.push({
+          id: email.id,
+          category: email.category,
+          email_title: "Processing failed",
+          sender: "Unknown",
+          summary: "Unable to summarize this email. Please try again later.",
+          action_items: [],
+          important_details: [],
+          intent: "Other",
+          sentiment: "Neutral"
+        });
+      }
     }
-  ]
-}
+  }
 
-EMAILS INPUT:
+  // Group by category for final output
+  const categoryMap = new Map<string, DigestItem[]>();
+  for (const item of allItems) {
+    const category = item.category || "Other";
+    if (!categoryMap.has(category)) {
+      categoryMap.set(category, []);
+    }
+    categoryMap.get(category)!.push(item);
+  }
+
+  // Build final digest
+  const sections: DigestSection[] = [];
+  for (const [category, items] of categoryMap) {
+    sections.push({ title: category, items });
+  }
+
+  const digest: DigestResult = {
+    title: "Daily Digest",
+    sections
+  };
+
+  console.log(`[AI Service] Final digest: ${allItems.length} items in ${sections.length} sections`);
+
+  if (allItems.length !== emailData.length) {
+    console.warn(`[AI Service WARNING] Count mismatch: expected ${emailData.length}, got ${allItems.length}`);
+  }
+
+  return JSON.stringify(digest);
+};
+
+/**
+ * Process a single batch of emails (up to BATCH_SIZE)
+ * Includes validation to ensure all emails are summarized
+ */
+async function processBatch(emails: EmailInput[], model?: string): Promise<DigestItem[]> {
+  const emailIds = emails.map(e => e.id);
+
+  const formattedInput = emails.map(e =>
+    `EMAIL_ID: ${e.id}\nCATEGORY: ${e.category}\n${e.content}`
+  ).join('\n---\n');
+
+  const prompt = `Summarize these ${emails.length} emails. Return ONLY a JSON array.
+
 ${formattedInput}
 
-Instructions:
-- **STRICT EMAIL COUNT**: There are exactly ${totalEmails} emails in the input. You MUST return exactly ${totalEmails} summary items. Do NOT skip any.
-- **ID MATCHING**: The "id" field in your JSON output MUST match the "ID:" provided in the input exactly.
-- **CATEGORY**: Use the "CATEGORY:" provided in the input for the "category" field.
-- **SENDER**: Extract the sender's real name from the "From:" line. If format is "Name <email>", use "Name".
-- **SUMMARY LENGTH**: The summary MUST be at least 3-5 sentences long. Do NOT be brief. Include specific details.
-- **Action Items**: Return [] if empty.
-  `;
+Return EXACTLY ${emails.length} items in this JSON array format:
+[
+  {
+    "id": "exact EMAIL_ID from above",
+    "category": "exact CATEGORY from above",
+    "email_title": "short title",
+    "sender": "sender name",
+    "summary": "1-2 sentence summary",
+    "action_items": [],
+    "important_details": [],
+    "intent": "Request|Informational|Urgent|Meeting|Other",
+    "sentiment": "Positive|Neutral|Negative|Urgent"
+  }
+]
+
+CRITICAL RULES:
+- You MUST return EXACTLY ${emails.length} items
+- The IDs MUST be: ${emailIds.join(', ')}
+- Return ONLY the JSON array, no other text`;
+
+  const rawContent = await OpenRouterService.generateContent(prompt, model);
+
+  // Extract JSON array
+  const arrayMatch = rawContent.match(/\[[\s\S]*\]/);
+  if (!arrayMatch) {
+    console.error("[AI Service] No JSON array found in response:", rawContent.substring(0, 500));
+    throw new Error("Invalid response format");
+  }
 
   try {
-    console.log(`[AI Service] Sending batch request to OpenRouter (${totalEmails} emails)...`);
+    const items = JSON.parse(arrayMatch[0]) as DigestItem[];
 
-    // Use generateJSON from OpenRouterService which handles parsing and cleaning
-    const digestJson = await OpenRouterService.generateJSON(prompt, model);
+    // Verify all emails were returned
+    const returnedIds = new Set(items.map(item => item.id));
+    const missingIds = emailIds.filter(id => !returnedIds.has(id));
 
-    // Verify count
-    let generatedCount = 0;
-    if (digestJson.sections && Array.isArray(digestJson.sections)) {
-      digestJson.sections.forEach((section: any) => {
-        if (Array.isArray(section.items)) {
-          generatedCount += section.items.length;
+    if (missingIds.length > 0) {
+      console.warn(`[AI Service] Missing ${missingIds.length} emails: ${missingIds.join(', ')}`);
+
+      // Add placeholder items for missing emails
+      for (const missingId of missingIds) {
+        const missingEmail = emails.find(e => e.id === missingId);
+        if (missingEmail) {
+          // Try to extract subject and sender from content
+          const subjectMatch = missingEmail.content.match(/Subject:\s*(.+)/i);
+          const fromMatch = missingEmail.content.match(/From:\s*(?:"?([^"<]+)"?\s*)?<?([^>]+@[^>]+)>?/i);
+
+          items.push({
+            id: missingId,
+            category: missingEmail.category,
+            email_title: subjectMatch ? subjectMatch[1].trim().substring(0, 50) : "Email",
+            sender: fromMatch ? (fromMatch[1]?.trim() || fromMatch[2]) : "Unknown",
+            summary: "Summary not available.",
+            action_items: [],
+            important_details: [],
+            intent: "Other",
+            sentiment: "Neutral"
+          });
         }
-      });
+      }
     }
 
-    if (generatedCount !== totalEmails) {
-      console.warn(`[AI Service WARNING] Mismatch: Sent ${totalEmails} emails, received ${generatedCount} summaries.`);
-    } else {
-      console.log(`[AI Service] Successfully verified 1:1 mapping (${generatedCount} items).`);
-    }
-
-    return JSON.stringify(digestJson);
-
-  } catch (error: any) {
-    console.error("[AI Service] Error generating digest:", error);
-    const errorMessage = error?.message || "Failed to generate summary from the AI service.";
-    throw new Error(errorMessage);
+    return items;
+  } catch (e) {
+    console.error("[AI Service] Failed to parse JSON:", arrayMatch[0].substring(0, 500));
+    throw new Error("Failed to parse response");
   }
-};
+}

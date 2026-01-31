@@ -7,48 +7,26 @@ import { getEmailById, EmailData } from '../services/emailService.js';
 import { generateAnswerFromContext } from '../services/geminiService.js';
 import { PrismaClient } from '@prisma/client';
 import { logUsage } from '../services/analyticsService.js';
+import { resolveUserModel, getUserIdFromRequest } from '../utils/modelHelper.js';
 
 const prisma = new PrismaClient();
 
 export const summarizeEmail = async (req: Request, res: Response) => {
   const { text } = req.body;
-
-  // 1. Get User ID (Assuming authMiddleware populates this)
   // @ts-ignore
-  const userId = req.user?.userId;
-
-  let model = process.env.DEFAULT_AI_MODEL || "google/gemini-2.0-flash-exp:free"; // Default
-
-  // 2. Try to get user preference from DB
-  if (userId) {
-    try {
-      const user = await prisma.user.findUnique({
-        where: { id: Number(userId) },
-        select: { preferredModel: true }
-      });
-      if (user?.preferredModel) {
-        model = user.preferredModel;
-      }
-    } catch (dbError) {
-      console.error('⚠️ Failed to fetch user preference, using default model:', dbError);
-    }
-  }
-
-  // Allow header override for testing/debug if needed, but DB is primary source of truth for "persistence"
-  if (req.headers['x-model-id']) {
-    // Optional: Decide if header should override DB. 
-    // For now, let's say header overrides if present (useful for instant preview in settings), 
-    // but typical flow relies on DB.
-    model = req.headers['x-model-id'] as string;
-  }
-
-  console.log('✅ [DEBUG] summarizeEmail - Final Model Used:', model);
+  const userId = getUserIdFromRequest(req);
 
   if (!text) {
     return res.status(400).json({ error: 'Email text is required.' });
   }
 
   try {
+    // Resolve model using centralized helper (checks user pref -> DB default -> env)
+    const headerOverride = req.headers['x-model-id'] as string | undefined;
+    const model = await resolveUserModel(userId, headerOverride);
+
+    console.log('✅ [DEBUG] summarizeEmail - Final Model Used:', model);
+
     const prompt = `
 You are an intelligent email summarization assistant. Your goal is to extract key information and return it in a structured JSON format.
 
@@ -106,7 +84,8 @@ Instructions:
 
 export const getAutocomplete = async (req: Request, res: Response) => {
   const { text } = req.body;
-  const model = (req.headers['x-model-id'] as string) || req.body.model;
+  // @ts-ignore
+  const userId = getUserIdFromRequest(req);
 
   console.log('✅ 3. aiController: Received request to autocomplete text:', text);
 
@@ -114,12 +93,13 @@ export const getAutocomplete = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Text input is too short for autocomplete.' });
   }
 
-  const prompt = `You are an AI assistant helping a user write. Your task is to provide a short, single-sentence completion for the text they have started. Do not repeat the user's text in your response. Only provide the new, autocompleted part. Be concise.\n\nUser's text:\n---\n${text}\n---`;
-
-  // @ts-ignore
-  const userId = req.user?.userId;
-
   try {
+    // Resolve model using centralized helper
+    const headerOverride = req.headers['x-model-id'] as string | undefined;
+    const model = await resolveUserModel(userId, headerOverride);
+
+    const prompt = `You are an AI assistant helping a user write. Your task is to provide a short, single-sentence completion for the text they have started. Do not repeat the user's text in your response. Only provide the new, autocompleted part. Be concise.\n\nUser's text:\n---\n${text}\n---`;
+
     const suggestion = await OpenRouterService.generateContent(prompt, model);
 
     // Log usage for analytics
@@ -143,13 +123,15 @@ export const askQuestionAboutEmails = async (req: any, res: Response) => {
   if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
 
   const { question, useRag } = req.body; // Expect useRag boolean
-  const model = (req.headers['x-model-id'] as string) || req.body.model;
+  const userId = getUserIdFromRequest(req);
+
+  // Resolve model using centralized helper
+  const headerOverride = req.headers['x-model-id'] as string | undefined;
+  const model = await resolveUserModel(userId, headerOverride);
 
   console.log('✅ [DEBUG] askQuestion Request:', { question, useRag, model });
 
   if (!question) return res.status(400).json({ message: 'Question is required.' });
-
-  const userId = req.user.userId; // Ensure number/string consistency based on your auth helper
 
   try {
     // ------------------------------------------------------------------
@@ -224,22 +206,27 @@ ${e.content}
 
 export const enhanceText = async (req: Request, res: Response) => {
   const { text, type } = req.body;
-  const model = (req.headers['x-model-id'] as string) || req.body.model;
+  // @ts-ignore
+  const userId = getUserIdFromRequest(req);
 
   if (!text) {
     return res.status(400).json({ error: 'Text is required.' });
   }
 
-  let instruction = "Improve the writing of the following text.";
-  if (type === 'formal') instruction = "Rewrite the following text to be more formal and professional.";
-  else if (type === 'concise') instruction = "Rewrite the following text to be more concise and to the point.";
-  else if (type === 'casual') instruction = "Rewrite the following text to be more casual and friendly.";
-  else if (type === 'clarity') instruction = "Rewrite the following text to improve clarity and flow.";
-  else if (type === 'more') instruction = "Expand on the following text, adding more detail and context.";
-
-  const prompt = `${instruction}\n\nText:\n---\n${text}\n---\n\nReturn only the enhanced text, nothing else.`;
-
   try {
+    // Resolve model using centralized helper
+    const headerOverride = req.headers['x-model-id'] as string | undefined;
+    const model = await resolveUserModel(userId, headerOverride);
+
+    let instruction = "Improve the writing of the following text.";
+    if (type === 'formal') instruction = "Rewrite the following text to be more formal and professional.";
+    else if (type === 'concise') instruction = "Rewrite the following text to be more concise and to the point.";
+    else if (type === 'casual') instruction = "Rewrite the following text to be more casual and friendly.";
+    else if (type === 'clarity') instruction = "Rewrite the following text to improve clarity and flow.";
+    else if (type === 'more') instruction = "Expand on the following text, adding more detail and context.";
+
+    const prompt = `${instruction}\n\nText:\n---\n${text}\n---\n\nReturn only the enhanced text, nothing else.`;
+
     const enhancedText = await OpenRouterService.generateContent(prompt, model);
     res.status(200).json({ enhancedText });
   } catch (error) {
@@ -251,13 +238,19 @@ export const enhanceText = async (req: Request, res: Response) => {
 // draft reply
 export const draftReply = async (req: Request, res: Response) => {
   const { emailContent, userPrompt } = req.body;
-  const model = (req.headers['x-model-id'] as string) || req.body.model;
+  // @ts-ignore
+  const userId = getUserIdFromRequest(req);
 
   if (!emailContent) {
     return res.status(400).json({ error: 'Email content is required.' });
   }
 
-  const prompt = `
+  try {
+    // Resolve model using centralized helper
+    const headerOverride = req.headers['x-model-id'] as string | undefined;
+    const model = await resolveUserModel(userId, headerOverride);
+
+    const prompt = `
 You are a professional email assistant.
 Context (The email thread):
 ---
@@ -270,7 +263,6 @@ ${userPrompt || "Draft a suitable reply based on the context."}
 Draft a professional and polite reply to the above email.
 `;
 
-  try {
     const reply = await OpenRouterService.generateContent(prompt, model);
     res.status(200).json({ reply });
   } catch (error) {

@@ -16,7 +16,7 @@ export const createUser = async (email: string, password: string) => {
     data: {
       email,
       password: hashedPassword,
-      preferredModel: process.env.DEFAULT_AI_MODEL || "google/gemini-2.0-flash-exp:free",
+      // preferredModel is null by default - resolved dynamically from DB/env
     },
   });
   return user;

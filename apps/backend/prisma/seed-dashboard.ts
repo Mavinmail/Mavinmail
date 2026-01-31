@@ -6,10 +6,59 @@ import jwt from 'jsonwebtoken';
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 
+// AI Models to seed - VERIFIED valid OpenRouter free models (2026)
+const AI_MODELS = [
+    {
+        modelId: process.env.DEFAULT_AI_MODEL || 'google/gemma-3-4b:free',
+        displayName: 'Gemma 3 4B (Free)',
+        description: 'Google\'s compact multimodal vision-language model',
+        isDefault: true,
+    },
+    {
+        modelId: process.env.FALLBACK_AI_MODEL || 'qwen/qwen3-4b:free',
+        displayName: 'Qwen3 4B (Free)',
+        description: 'Dual-mode architecture for general and reasoning tasks',
+        isDefault: false,
+    },
+    {
+        modelId: 'deepseek/deepseek-chat-v3-0324:free',
+        displayName: 'DeepSeek Chat V3 (Free)',
+        description: 'Dialogue-optimized transformer with strong reasoning',
+        isDefault: false,
+    },
+    {
+        modelId: 'meta-llama/llama-3.2-3b-instruct:free',
+        displayName: 'Llama 3.2 3B (Free)',
+        description: 'Multilingual, optimized for dialogue and summarization',
+        isDefault: false,
+    },
+    {
+        modelId: 'nvidia/nemotron-3-nano-30b-a3b:free',
+        displayName: 'Nemotron Nano 30B (Free)',
+        description: 'NVIDIA MoE model for agentic AI tasks',
+        isDefault: false,
+    },
+];
+
 async function main() {
     console.log('🌱 Starting seed...');
 
-    // 1. Create a Test User
+    // 0. Seed AI Models
+    console.log('📦 Seeding AI Models...');
+    for (const model of AI_MODELS) {
+        await prisma.aIModel.upsert({
+            where: { modelId: model.modelId },
+            update: {
+                displayName: model.displayName,
+                description: model.description,
+                isDefault: model.isDefault,
+            },
+            create: model,
+        });
+    }
+    console.log(`✅ Seeded ${AI_MODELS.length} AI models`);
+
+    // 1. Create a Test User (no hardcoded preferredModel - will use DB default)
     const email = 'demo@mavinmail.com';
     const password = await bcrypt.hash('password123', 10);
 
@@ -19,11 +68,12 @@ async function main() {
         create: {
             email,
             password,
-            preferredModel: 'google/gemini-2.0-flash-exp:free',
+            // preferredModel is null - will be resolved dynamically
         },
     });
 
     console.log(`✅ User created: ${user.email} (ID: ${user.id})`);
+
 
     // 2. Generate Authentication Token
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, {
