@@ -1,12 +1,74 @@
 "use client"
 
+import * as React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react"
+import { getAvailableModels, getModelPreference, updateModelPreference, type AIModel } from "@/lib/api"
 
 export function SettingsView() {
+    const [models, setModels] = React.useState<AIModel[]>([])
+    const [selectedModel, setSelectedModel] = React.useState<string>("")
+    const [loading, setLoading] = React.useState(true)
+    const [saving, setSaving] = React.useState(false)
+    const [error, setError] = React.useState<string | null>(null)
+    const [success, setSuccess] = React.useState<string | null>(null)
+
+    // Fetch models and user preference on mount
+    React.useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [availableModels, currentPreference] = await Promise.all([
+                    getAvailableModels(),
+                    getModelPreference(),
+                ])
+                setModels(availableModels)
+
+                // If user has a preference, use it. Otherwise use the default model from the list
+                if (currentPreference) {
+                    setSelectedModel(currentPreference)
+                } else {
+                    const defaultModel = availableModels.find(m => m.isDefault)
+                    setSelectedModel(defaultModel?.modelId || availableModels[0]?.modelId || "")
+                }
+            } catch (err: any) {
+                setError("Failed to load settings")
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [])
+
+    // Clear success message after 3 seconds
+    React.useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => setSuccess(null), 3000)
+            return () => clearTimeout(timer)
+        }
+    }, [success])
+
+    const handleModelChange = async (modelId: string) => {
+        setSelectedModel(modelId)
+        setSaving(true)
+        setError(null)
+
+        try {
+            await updateModelPreference(modelId)
+            // Also save to localStorage for immediate use in API calls
+            localStorage.setItem('selectedModel', modelId)
+            setSuccess("Model preference saved")
+        } catch (err: any) {
+            setError(err.message || "Failed to save preference")
+        } finally {
+            setSaving(false)
+        }
+    }
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="space-y-1">
@@ -14,7 +76,75 @@ export function SettingsView() {
                 <p className="text-muted-foreground">Manage your preferences and AI behavior.</p>
             </div>
 
+            {/* Status Messages */}
+            {error && (
+                <div className="flex items-center gap-2 p-3 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <AlertCircle className="w-4 h-4" />
+                    {error}
+                </div>
+            )}
+            {success && (
+                <div className="flex items-center gap-2 p-3 text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <CheckCircle2 className="w-4 h-4" />
+                    {success}
+                </div>
+            )}
+
             <div className="grid gap-6">
+                {/* AI Model Selection Card */}
+                <Card className="bg-card border-border">
+                    <CardHeader>
+                        <CardTitle className="text-foreground">AI Model</CardTitle>
+                        <CardDescription className="text-muted-foreground">
+                            Select the AI model used for email summaries, drafts, and chat.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {loading ? (
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Loading models...
+                            </div>
+                        ) : models.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                                No models available. Contact administrator.
+                            </p>
+                        ) : (
+                            <div className="space-y-2">
+                                <Label htmlFor="ai-model">Preferred Model</Label>
+                                <Select
+                                    value={selectedModel}
+                                    onValueChange={handleModelChange}
+                                    disabled={saving}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select a model" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {models.map((model) => (
+                                            <SelectItem key={model.modelId} value={model.modelId}>
+                                                <div className="flex items-center gap-2">
+                                                    {model.displayName}
+                                                    {model.isDefault && (
+                                                        <span className="text-xs text-muted-foreground">(Default)</span>
+                                                    )}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {saving && (
+                                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                        Saving...
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* AI Behavior Card */}
                 <Card className="bg-card border-border">
                     <CardHeader>
                         <CardTitle className="text-foreground">AI Behavior</CardTitle>
@@ -49,6 +179,7 @@ export function SettingsView() {
                     </CardContent>
                 </Card>
 
+                {/* Notifications Card */}
                 <Card className="bg-card border-border">
                     <CardHeader>
                         <CardTitle className="text-foreground">Notifications</CardTitle>

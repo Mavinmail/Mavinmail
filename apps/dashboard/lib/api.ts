@@ -616,4 +616,90 @@ export const deleteSupportTicket = async (id: number) => {
   }
 };
 
+// ====================================================================
+// AI Model API Functions
+// ====================================================================
+
+export interface AIModel {
+  id: number;
+  modelId: string;
+  displayName: string;
+  description?: string;
+  isActive: boolean;
+  isDefault: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// User/Public: Get active models for selection
+export const getAvailableModels = async (): Promise<AIModel[]> => {
+  try {
+    const response = await api.get('/models');
+    return response.data.models || [];
+  } catch (error: any) {
+    console.warn('Failed to fetch available models:', error.message);
+    return [];
+  }
+};
+
+// Admin: Get all models with full metadata
+export const getAdminModels = async (): Promise<AIModel[]> => {
+  try {
+    const response = await api.get('/models/admin');
+    return response.data.models || [];
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to fetch models');
+  }
+};
+
+// Admin: Create a new model
+export const createAIModel = async (data: {
+  modelId: string;
+  displayName: string;
+  description?: string;
+  isActive?: boolean;
+}): Promise<AIModel> => {
+  try {
+    const response = await api.post('/models/admin', data);
+    return response.data.model;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to create model');
+  }
+};
+
+// Admin: Update a model
+export const updateAIModel = async (id: number, data: {
+  displayName?: string;
+  description?: string;
+  isActive?: boolean;
+}): Promise<AIModel> => {
+  try {
+    const response = await api.put(`/models/admin/${id}`, data);
+    return response.data.model;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to update model');
+  }
+};
+
+// Admin: Delete a model
+export const deleteAIModel = async (id: number): Promise<{ success: boolean }> => {
+  try {
+    const response = await api.delete(`/models/admin/${id}`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to delete model');
+  }
+};
+
+// Admin: Set a model as default
+export const setDefaultAIModel = async (id: number): Promise<{ success: boolean; defaultModelId: string }> => {
+  try {
+    const response = await api.put(`/models/admin/${id}/set-default`);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.error || 'Failed to set default model');
+  }
+};
+
 export default api;
+
