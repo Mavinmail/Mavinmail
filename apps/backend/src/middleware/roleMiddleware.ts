@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from './authMiddleware.js';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../utils/prisma.js';
+import logger from '../utils/logger.js';
 
 // Valid roles in the system (3-tier hierarchy)
 export type UserRole = 'USER' | 'ADMIN' | 'SUPER_ADMIN';
@@ -58,7 +57,7 @@ export const requireRole = (...allowedRoles: UserRole[]) => {
 
             next();
         } catch (error) {
-            console.error('Role middleware error:', error);
+            logger.error('Role middleware error:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
     };
@@ -106,7 +105,7 @@ export const requireActive = async (
 
         next();
     } catch (error) {
-        console.error('Active check middleware error:', error);
+        logger.error('Active check middleware error:', error);
         return res.status(500).json({ error: 'Internal server error' });
     }
 };

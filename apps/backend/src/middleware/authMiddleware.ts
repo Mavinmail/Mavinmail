@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import logger from '../utils/logger.js';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -29,7 +30,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 
   jwt.verify(token, JWT_SECRET, (error, payload) => {
     if (error) {
-      console.error('JWT Verification Error:', error.message);
+      logger.error('JWT Verification Error:', error.message);
       return res.status(403).json({ message: 'Token is invalid or has expired.' });
     }
 
