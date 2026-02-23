@@ -43,6 +43,11 @@ model User {
   connectedAccounts ConnectedAccount[]
   preferredModel    String?            // Nullable - resolved from DB default or env
   
+  // Credit System
+  credits     Int      @default(50)    // Default free credits
+  plan        String   @default("FREE")// FREE, PRO
+
+  
   // New relations for dashboard analytics
   usageLogs    UsageLog[]
   syncHistory  SyncHistory[]
