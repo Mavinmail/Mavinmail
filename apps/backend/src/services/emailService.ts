@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 import { getAuthenticatedClient } from './googleApiService.js';
 import { extractFullMetadata, EmailType } from './metadataExtractorService.js';
 import { cleanEmailContent } from './textCleanerService.js';
+import logger from '../utils/logger.js';
 
 // -----------------------------------------------------
 // ⭐ Extended EmailData interface with full metadata for RAG
@@ -74,7 +75,7 @@ export const getLatestEmails = async (
   // 2. Initialize Gmail API
   const gmail = google.gmail({ version: "v1", auth });
 
-  console.log("DEBUG: Fetching latest emails...");
+  logger.info("DEBUG: Fetching latest emails...");
 
   try {
     // 3. Retrieve message list
@@ -107,10 +108,10 @@ export const getLatestEmails = async (
 
         const MAX_SAFE_SIZE = 5 * 1024 * 1024; // 5MB Limit
 
-        console.log(`[EmailService] Checking email ${msg.id}: Estimate=${sizeEstimate} bytes`);
+        logger.info(`[EmailService] Checking email ${msg.id}: Estimate=${sizeEstimate} bytes`);
 
         if (safeSize > MAX_SAFE_SIZE) {
-          console.warn(`[EmailService] ⚠️ Skipping massive email ${msg.id} (Size: ${(safeSize / 1024 / 1024).toFixed(2)}MB). Limit is 5MB.`);
+          logger.warn(`[EmailService] ⚠️ Skipping massive email ${msg.id} (Size: ${(safeSize / 1024 / 1024).toFixed(2)}MB). Limit is 5MB.`);
           // Create a placeholder so the user knows something was skipped
           processedEmails.push({
             id: msg.id!,
@@ -158,7 +159,7 @@ export const getLatestEmails = async (
         // 100KB text ~= 135KB Base64. Cap at 200KB safe limit.
         const MAX_BASE64_LENGTH = 200000;
         if (bodyData && bodyData.length > MAX_BASE64_LENGTH) {
-          console.warn(`[EmailService] Truncating massive Base64 body for ${msg.id} (${bodyData.length} chars)`);
+          logger.warn(`[EmailService] Truncating massive Base64 body for ${msg.id} (${bodyData.length} chars)`);
           bodyData = bodyData.substring(0, MAX_BASE64_LENGTH);
         }
 
@@ -215,7 +216,7 @@ export const getLatestEmails = async (
         });
 
       } catch (innerError) {
-        console.warn(`[EmailService] Failed to fetch/parse email ${msg.id}, skipping.`, innerError);
+        logger.warn(`[EmailService] Failed to fetch/parse email ${msg.id}, skipping.`, innerError);
         // Continue to next email, do not crash
       }
     }
@@ -223,7 +224,7 @@ export const getLatestEmails = async (
     return processedEmails;
 
   } catch (error) {
-    console.error("Error fetching latest emails:", error);
+    logger.error("Error fetching latest emails:", error);
     return [];
   }
 };
@@ -247,7 +248,7 @@ export const getLatestMessageIds = async (
 
     return listResponse.data.messages?.map(m => m.id!).filter(Boolean) || [];
   } catch (error) {
-    console.error("Error fetching message IDs:", error);
+    logger.error("Error fetching message IDs:", error);
     return [];
   }
 };
@@ -277,10 +278,10 @@ export const getEmailById = async (
 
     const MAX_SAFE_SIZE = 5 * 1024 * 1024; // 5MB Limit
 
-    console.log(`[EmailService] Checking email ${emailId}: Estimate=${sizeEstimate} bytes`);
+    logger.info(`[EmailService] Checking email ${emailId}: Estimate=${sizeEstimate} bytes`);
 
     if (safeSize > MAX_SAFE_SIZE) {
-      console.warn(`[EmailService] ⚠️ Skipping massive email ${emailId} (Size: ${(safeSize / 1024 / 1024).toFixed(2)}MB). Limit is 5MB.`);
+      logger.warn(`[EmailService] ⚠️ Skipping massive email ${emailId} (Size: ${(safeSize / 1024 / 1024).toFixed(2)}MB). Limit is 5MB.`);
       return null;
     }
 
@@ -304,7 +305,7 @@ export const getEmailById = async (
     // 🛑 OPTIMIZATION 1: Check Raw Base64 Length
     const MAX_BASE64_LENGTH = 200000;
     if (bodyData && bodyData.length > MAX_BASE64_LENGTH) {
-      console.warn(`[EmailService] Truncating massive Base64 body for ${emailId} (${bodyData.length} chars)`);
+      logger.warn(`[EmailService] Truncating massive Base64 body for ${emailId} (${bodyData.length} chars)`);
       bodyData = bodyData.substring(0, MAX_BASE64_LENGTH);
     }
 
@@ -357,7 +358,7 @@ export const getEmailById = async (
       amount: extendedMeta.amount,
     };
   } catch (error) {
-    console.error(`Failed to fetch specific email ${emailId}:`, error);
+    logger.error(`Failed to fetch specific email ${emailId}:`, error);
     return null;
   }
 };
