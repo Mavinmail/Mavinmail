@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../utils/prisma.js';
 import bcrypt from 'bcryptjs';
 import { UserRole } from '../middleware/roleMiddleware.js';
-
-const prisma = new PrismaClient();
 
 // ============================================================================
 // USER LISTING & DETAILS

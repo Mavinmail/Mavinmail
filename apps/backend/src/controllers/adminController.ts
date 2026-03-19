@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
 import * as adminService from '../services/adminService.js';
 import { canModifyRole, canAssignRole, UserRole } from '../middleware/roleMiddleware.js';
+import logger from '../utils/logger.js';
 
 // ============================================================================
 // USER MANAGEMENT ENDPOINTS
@@ -63,7 +64,7 @@ export const createUser = async (req: Request, res: Response) => {
             user
         });
     } catch (error: any) {
-        console.error('Create user error:', error);
+        logger.error('Create user error:', error);
         if (error.message === 'User with this email already exists') {
             return res.status(409).json({ error: error.message });
         }
@@ -89,7 +90,7 @@ export const listUsers = async (req: Request, res: Response) => {
 
         res.json(result);
     } catch (error: any) {
-        console.error('List users error:', error);
+        logger.error('List users error:', error);
         res.status(500).json({ error: error.message || 'Failed to list users' });
     }
 };
@@ -109,7 +110,7 @@ export const getUserById = async (req: Request, res: Response) => {
         const user = await adminService.getUserById(userId);
         res.json(user);
     } catch (error: any) {
-        console.error('Get user error:', error);
+        logger.error('Get user error:', error);
         if (error.message === 'User not found') {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -172,7 +173,7 @@ export const updateUserRole = async (req: Request, res: Response) => {
         const result = await adminService.updateUserRole(userId, newRole, actorId, ipAddress);
         res.json(result);
     } catch (error: any) {
-        console.error('Update role error:', error);
+        logger.error('Update role error:', error);
         if (error.message === 'User not found') {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -216,7 +217,7 @@ export const suspendUser = async (req: Request, res: Response) => {
         const result = await adminService.suspendUser(userId, actorId, reason, ipAddress);
         res.json({ message: 'User suspended successfully', user: result });
     } catch (error: any) {
-        console.error('Suspend user error:', error);
+        logger.error('Suspend user error:', error);
         if (error.message === 'User not found') {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -257,7 +258,7 @@ export const activateUser = async (req: Request, res: Response) => {
         const result = await adminService.activateUser(userId, actorId, ipAddress);
         res.json({ message: 'User activated successfully', user: result });
     } catch (error: any) {
-        console.error('Activate user error:', error);
+        logger.error('Activate user error:', error);
         if (error.message === 'User not found') {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -281,7 +282,7 @@ export const getPlatformStats = async (req: Request, res: Response) => {
         const stats = await adminService.getPlatformStats();
         res.json(stats);
     } catch (error: any) {
-        console.error('Get stats error:', error);
+        logger.error('Get stats error:', error);
         res.status(500).json({ error: error.message || 'Failed to get platform stats' });
     }
 };
@@ -307,7 +308,7 @@ export const getAuditLogs = async (req: Request, res: Response) => {
 
         res.json(result);
     } catch (error: any) {
-        console.error('Get audit logs error:', error);
+        logger.error('Get audit logs error:', error);
         res.status(500).json({ error: error.message || 'Failed to get audit logs' });
     }
 };
@@ -325,7 +326,7 @@ export const getSystemSettings = async (req: Request, res: Response) => {
         const settings = await adminService.getAllSystemSettings();
         res.json(settings);
     } catch (error: any) {
-        console.error('Get system settings error:', error);
+        logger.error('Get system settings error:', error);
         res.status(500).json({ error: error.message || 'Failed to get system settings' });
     }
 };
@@ -357,7 +358,7 @@ export const updateSystemSettings = async (req: Request, res: Response) => {
             settings: updatedSettings
         });
     } catch (error: any) {
-        console.error('Update system settings error:', error);
+        logger.error('Update system settings error:', error);
         res.status(500).json({ error: error.message || 'Failed to update system settings' });
     }
 };
@@ -371,7 +372,7 @@ export const getPublicSystemStatus = async (req: Request, res: Response) => {
         const status = await adminService.getPublicSystemStatus();
         res.json(status);
     } catch (error: any) {
-        console.error('Get system status error:', error);
+        logger.error('Get system status error:', error);
         res.status(500).json({ error: error.message || 'Failed to get system status' });
     }
 };
