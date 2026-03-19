@@ -9,6 +9,7 @@
  */
 
 import { Request, Response } from 'express';
+import logger from '../utils/logger.js';
 import {
     getDashboardStats,
     getRecentActivity,
@@ -16,16 +17,6 @@ import {
     getAccountEmailStats,
     deleteActivity
 } from '../services/analyticsService.js';
-
-// ============================================================================
-// TYPE DEFINITIONS
-// ============================================================================
-
-interface AuthenticatedRequest extends Request {
-    user?: {
-        userId: number;
-    };
-}
 
 // ============================================================================
 // DASHBOARD STATS
@@ -36,19 +27,17 @@ interface AuthenticatedRequest extends Request {
  * Returns comprehensive dashboard statistics
  */
 export const getStats = async (req: Request, res: Response) => {
-    const authenticatedReq = req as AuthenticatedRequest;
-
-    if (!authenticatedReq.user?.userId) {
+    if (!req.user?.userId) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const userId = authenticatedReq.user.userId;
+    const userId = req.user.userId;
 
     try {
         const stats = await getDashboardStats(userId);
         res.json(stats);
     } catch (error: any) {
-        console.error('[DashboardController] Error fetching stats:', error);
+        logger.error('[DashboardController] Error fetching stats:', error);
         res.status(500).json({
             error: 'Failed to fetch dashboard statistics',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -65,13 +54,11 @@ export const getStats = async (req: Request, res: Response) => {
  * Returns recent AI activity for the activity feed
  */
 export const getActivity = async (req: Request, res: Response) => {
-    const authenticatedReq = req as AuthenticatedRequest;
-
-    if (!authenticatedReq.user?.userId) {
+    if (!req.user?.userId) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const userId = authenticatedReq.user.userId;
+    const userId = req.user.userId;
     const limit = parseInt(req.query.limit as string) || 10;
 
     // Cap the limit to prevent abuse
@@ -81,7 +68,7 @@ export const getActivity = async (req: Request, res: Response) => {
         const activity = await getRecentActivity(userId, safeLimit);
         res.json({ activity });
     } catch (error: any) {
-        console.error('[DashboardController] Error fetching activity:', error);
+        logger.error('[DashboardController] Error fetching activity:', error);
         res.status(500).json({
             error: 'Failed to fetch activity feed',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -98,13 +85,11 @@ export const getActivity = async (req: Request, res: Response) => {
  * Returns usage trends for charts
  */
 export const getTrends = async (req: Request, res: Response) => {
-    const authenticatedReq = req as AuthenticatedRequest;
-
-    if (!authenticatedReq.user?.userId) {
+    if (!req.user?.userId) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const userId = authenticatedReq.user.userId;
+    const userId = req.user.userId;
     const days = parseInt(req.query.days as string) || 7;
 
     // Cap the days to prevent expensive queries
@@ -114,7 +99,7 @@ export const getTrends = async (req: Request, res: Response) => {
         const trends = await getUsageTrends(userId, safeDays);
         res.json({ trends });
     } catch (error: any) {
-        console.error('[DashboardController] Error fetching trends:', error);
+        logger.error('[DashboardController] Error fetching trends:', error);
         res.status(500).json({
             error: 'Failed to fetch usage trends',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -131,19 +116,17 @@ export const getTrends = async (req: Request, res: Response) => {
  * Returns email statistics for connected accounts
  */
 export const getAccountStats = async (req: Request, res: Response) => {
-    const authenticatedReq = req as AuthenticatedRequest;
-
-    if (!authenticatedReq.user?.userId) {
+    if (!req.user?.userId) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const userId = authenticatedReq.user.userId;
+    const userId = req.user.userId;
 
     try {
         const stats = await getAccountEmailStats(userId);
         res.json(stats);
     } catch (error: any) {
-        console.error('[DashboardController] Error fetching account stats:', error);
+        logger.error('[DashboardController] Error fetching account stats:', error);
         res.status(500).json({
             error: 'Failed to fetch account statistics',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
@@ -156,13 +139,11 @@ export const getAccountStats = async (req: Request, res: Response) => {
  * Deletes a specific activity log
  */
 export const deleteActivityLog = async (req: Request, res: Response) => {
-    const authenticatedReq = req as AuthenticatedRequest;
-
-    if (!authenticatedReq.user?.userId) {
+    if (!req.user?.userId) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const userId = authenticatedReq.user.userId;
+    const userId = req.user.userId;
     const activityId = parseInt(req.params.id);
 
     if (isNaN(activityId)) {
@@ -177,7 +158,7 @@ export const deleteActivityLog = async (req: Request, res: Response) => {
             res.status(404).json({ error: 'Activity not found or not owned by user' });
         }
     } catch (error: any) {
-        console.error('[DashboardController] Error deleting activity:', error);
+        logger.error('[DashboardController] Error deleting activity:', error);
         res.status(500).json({
             error: 'Failed to delete activity',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined

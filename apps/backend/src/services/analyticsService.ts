@@ -11,6 +11,7 @@
 import prisma from '../utils/prisma.js';
 import { google } from 'googleapis';
 import { decrypt } from './encryptionService.js';
+import logger from '../utils/logger.js';
 
 // ============================================================================
 // TYPES
@@ -100,7 +101,7 @@ export async function logUsage(params: LogUsageParams): Promise<void> {
         });
     } catch (error) {
         // Don't throw - logging failures shouldn't break main functionality
-        console.error('[AnalyticsService] Failed to log usage:', error);
+        logger.error('[AnalyticsService] Failed to log usage:', error);
     }
 }
 
@@ -123,7 +124,7 @@ export async function logSyncHistory(
             },
         });
     } catch (error) {
-        console.error('[AnalyticsService] Failed to log sync history:', error);
+        logger.error('[AnalyticsService] Failed to log sync history:', error);
     }
 }
 
@@ -211,7 +212,7 @@ export async function getDashboardStats(userId: number): Promise<DashboardStats>
 
                 oauth2Client.setCredentials(credentials);
             } catch (decryptError) {
-                console.error('[Analytics] Token decryption failed:', decryptError);
+                logger.error('[Analytics] Token decryption failed:', decryptError);
                 throw new Error('Token decryption failed');
             }
 
@@ -227,7 +228,7 @@ export async function getDashboardStats(userId: number): Promise<DashboardStats>
                 gmail.users.getProfile({
                     userId: 'me'
                 }).catch((err) => {
-                    console.error('[Analytics] Failed to fetch Gmail profile:', err.message);
+                    logger.error('[Analytics] Failed to fetch Gmail profile:', err.message);
                     return null;
                 }),
                 // Get all emails from today (Sent + Received) using timestamp
@@ -237,18 +238,18 @@ export async function getDashboardStats(userId: number): Promise<DashboardStats>
                     maxResults: 500,
                     includeSpamTrash: false
                 }).catch((err) => {
-                    console.error('[Analytics] Failed to fetch today\'s emails:', err.message);
+                    logger.error('[Analytics] Failed to fetch today\'s emails:', err.message);
                     return null;
                 })
             ]);
 
             if (profileRes && todayRes) {
                 // Log the raw data for debugging
-                console.log(`[Analytics] Raw Gmail API data for user ${userId}:`);
-                console.log(`  - Query used: after:${midnightTimestamp} (${new Date(midnightTimestamp * 1000).toLocaleString()})`);
-                console.log(`  - Profile messagesTotal: ${profileRes.data.messagesTotal}`);
-                console.log(`  - Today's resultSizeEstimate: ${todayRes.data.resultSizeEstimate}`);
-                console.log(`  - Actual IDs returned: ${todayRes.data.messages?.length || 0}`);
+                logger.info(`[Analytics] Raw Gmail API data for user ${userId}:`);
+                logger.info(`  - Query used: after:${midnightTimestamp} (${new Date(midnightTimestamp * 1000).toLocaleString()})`);
+                logger.info(`  - Profile messagesTotal: ${profileRes.data.messagesTotal}`);
+                logger.info(`  - Today's resultSizeEstimate: ${todayRes.data.resultSizeEstimate}`);
+                logger.info(`  - Actual IDs returned: ${todayRes.data.messages?.length || 0}`);
 
                 liveStats = {
                     // Use actual length if available and less than resultSizeEstimate, otherwise rely on estimate
@@ -257,13 +258,13 @@ export async function getDashboardStats(userId: number): Promise<DashboardStats>
                     total: profileRes.data.messagesTotal || 0,
                     usingLive: true
                 };
-                console.log(`[Analytics] Successfully fetched live stats for user ${userId}: ${liveStats.total} total, ${liveStats.today} today`);
+                logger.info(`[Analytics] Successfully fetched live stats for user ${userId}: ${liveStats.total} total, ${liveStats.today} today`);
             } else {
-                console.warn(`[Analytics] Partial Gmail API response for user ${userId}, falling back to DB stats`);
+                logger.warn(`[Analytics] Partial Gmail API response for user ${userId}, falling back to DB stats`);
             }
         }
     } catch (e: any) {
-        console.warn(`[Analytics] Failed to fetch live Gmail stats for user ${userId}:`, e.message);
+        logger.warn(`[Analytics] Failed to fetch live Gmail stats for user ${userId}:`, e.message);
         // Fallback to DB stats seamlessly
     }
 
@@ -316,7 +317,7 @@ export async function getDashboardStats(userId: number): Promise<DashboardStats>
         ? liveStats.total
         : (syncStats._sum.emailCount || 0);
 
-    console.log(`[Analytics] Final stats for user ${userId}: emailsToday=${emailsToday}, totalEmails=${totalEmails}, source=${liveStats.usingLive ? 'Gmail API' : 'Database'}`);
+    logger.info(`[Analytics] Final stats for user ${userId}: emailsToday=${emailsToday}, totalEmails=${totalEmails}, source=${liveStats.usingLive ? 'Gmail API' : 'Database'}`);
 
     return {
         emailsToday,

@@ -3,6 +3,7 @@ import { AuthenticatedRequest } from '../middleware/authMiddleware.js'; // Keep 
 import prisma from '../utils/prisma.js';
 import { getLatestMessageIds, getEmailById } from '../services/emailService.js';
 import { upsertEmailChunks } from '../services/pineconeService.js';
+import logger from '../utils/logger.js';
 
 // The function signature now uses the base Express `Request` type to satisfy the router.
 export const syncEmails = async (req: Request, res: Response) => {
@@ -47,7 +48,7 @@ export const syncEmails = async (req: Request, res: Response) => {
         const email = await getEmailById(Number(userId), msgId);
 
         if (!email) {
-          console.warn(`[Sync] Skipped email ${msgId} (returned null/too large)`);
+          logger.warn(`[Sync] Skipped email ${msgId} (returned null/too large)`);
           continue;
         }
 
@@ -84,14 +85,14 @@ export const syncEmails = async (req: Request, res: Response) => {
         // Explicitly clear references to help GC
         // (In JS loop scope, 'email' will be overwritten, but this mental model helps)
       } catch (innerError) {
-        console.error(`[Sync] Error processing email ${msgId}:`, innerError);
+        logger.error(`[Sync] Error processing email ${msgId}:`, innerError);
       }
     }
 
     res.json({ message: `Successfully synced and indexed ${successCount} emails.` });
 
   } catch (error) {
-    console.error("Sync error:", error);
+    logger.error("Sync error:", error);
     res.status(500).json({ message: "Failed to sync emails." });
   }
 };
