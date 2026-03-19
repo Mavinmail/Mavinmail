@@ -91,6 +91,25 @@ export const getGoogleUrl = async (): Promise<string> => {
   }
 };
 
+export const getGoogleCredentials = async (): Promise<{ googleClientId: string | null; hasCustomCredentials: boolean }> => {
+  try {
+    const response = await api.get('/user/google-credentials');
+    return response.data;
+  } catch (error: any) {
+    console.error('Failed to fetch Google credentials status:', error);
+    return { googleClientId: null, hasCustomCredentials: false };
+  }
+};
+
+export const updateGoogleCredentials = async (data: { googleClientId?: string; googleClientSecret?: string }): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const response = await api.put('/user/google-credentials', data);
+    return response.data;
+  } catch (error: any) {
+    return { success: false, error: error.response?.data?.error || 'Failed to update credentials' };
+  }
+};
+
 // ====================================================================
 // Connection Status API Functions
 // ====================================================================
@@ -765,5 +784,33 @@ export const getPublicSystemStatus = async (): Promise<{
   }
 };
 
-export default api;
+// ====================================================================
+// Credit System API Functions
+// ====================================================================
 
+export interface CreditInfo {
+  credits: number;
+  plan: string;
+}
+
+export const getUserCredits = async (): Promise<CreditInfo> => {
+  try {
+    const response = await api.get('/user/credits');
+    return response.data;
+  } catch (error: any) {
+    console.warn('Credits endpoint unavailable:', error.message);
+    return { credits: 0, plan: 'FREE' };
+  }
+};
+
+export const upgradeToPro = async (code: string): Promise<{ message: string; credits: number; plan: string }> => {
+  const response = await api.post('/upgrade/pro', { code });
+  return response.data;
+};
+
+export const topUpCredits = async (code: string): Promise<{ message: string; credits: number; plan: string }> => {
+  const response = await api.post('/upgrade/top-up', { code });
+  return response.data;
+};
+
+export default api;

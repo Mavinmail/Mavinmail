@@ -347,3 +347,33 @@ export const getPublicSystemStatus = async (): Promise<{
     };
   }
 };
+
+// ====================================================================
+// Credit System
+// ====================================================================
+
+export interface CreditInfo {
+  credits: number;
+  plan: string;
+}
+
+export const getUserCredits = async (): Promise<CreditInfo> => {
+  try {
+    const response = await api.get('/user/credits');
+    return response.data;
+  } catch (error: any) {
+    console.warn('Credits endpoint unavailable:', error.message);
+    return { credits: 0, plan: 'FREE' };
+  }
+};
+
+export const upgradeToPro = async (code: string): Promise<{ message: string; credits: number; plan: string }> => {
+  const response = await api.post('/upgrade/pro', { code });
+  return response.data;
+};
+
+export const topUpCredits = async (code: string): Promise<{ message: string; credits: number; plan: string }> => {
+  const response = await api.post('/upgrade/top-up', { code });
+  return response.data;
+};
+
