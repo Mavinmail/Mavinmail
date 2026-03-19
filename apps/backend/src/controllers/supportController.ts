@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
 import * as supportService from '../services/supportService.js';
+import logger from '../utils/logger.js';
 
 // ============================================================================
 // USER SUPPORT TICKET ENDPOINTS
@@ -53,7 +54,7 @@ export const createTicket = async (req: Request, res: Response) => {
             ticket,
         });
     } catch (error: any) {
-        console.error('Create ticket error:', error);
+        logger.error('Create ticket error:', error);
         res.status(500).json({ error: error.message || 'Failed to create ticket' });
     }
 };
@@ -76,7 +77,7 @@ export const getUserTickets = async (req: Request, res: Response) => {
 
         res.json(result);
     } catch (error: any) {
-        console.error('Get user tickets error:', error);
+        logger.error('Get user tickets error:', error);
         res.status(500).json({ error: error.message || 'Failed to get tickets' });
     }
 };
@@ -104,7 +105,7 @@ export const getTicketById = async (req: Request, res: Response) => {
 
         res.json(ticket);
     } catch (error: any) {
-        console.error('Get ticket error:', error);
+        logger.error('Get ticket error:', error);
         if (error.message === 'Ticket not found') {
             return res.status(404).json({ error: 'Ticket not found' });
         }
@@ -135,7 +136,7 @@ export const getAllTickets = async (req: Request, res: Response) => {
 
         res.json(result);
     } catch (error: any) {
-        console.error('Get all tickets error:', error);
+        logger.error('Get all tickets error:', error);
         res.status(500).json({ error: error.message || 'Failed to get tickets' });
     }
 };
@@ -155,7 +156,7 @@ export const getAdminTicketById = async (req: Request, res: Response) => {
         const ticket = await supportService.getTicketById(ticketId);
         res.json(ticket);
     } catch (error: any) {
-        console.error('Get admin ticket error:', error);
+        logger.error('Get admin ticket error:', error);
         if (error.message === 'Ticket not found') {
             return res.status(404).json({ error: 'Ticket not found' });
         }
@@ -207,7 +208,7 @@ export const updateTicket = async (req: Request, res: Response) => {
             ticket,
         });
     } catch (error: any) {
-        console.error('Update ticket error:', error);
+        logger.error('Update ticket error:', error);
         if (error.message === 'Ticket not found') {
             return res.status(404).json({ error: 'Ticket not found' });
         }
@@ -224,7 +225,7 @@ export const getTicketStats = async (req: Request, res: Response) => {
         const stats = await supportService.getTicketStats();
         res.json(stats);
     } catch (error: any) {
-        console.error('Get ticket stats error:', error);
+        logger.error('Get ticket stats error:', error);
         res.status(500).json({ error: error.message || 'Failed to get ticket stats' });
     }
 };
@@ -250,7 +251,7 @@ export const deleteUserTicket = async (req: Request, res: Response) => {
             ...result,
         });
     } catch (error: any) {
-        console.error('Delete user ticket error:', error);
+        logger.error('Delete user ticket error:', error);
         if (error.message === 'Ticket not found') {
             return res.status(404).json({ error: 'Ticket not found' });
         }
@@ -280,7 +281,7 @@ export const deleteAdminTicket = async (req: Request, res: Response) => {
             ...result,
         });
     } catch (error: any) {
-        console.error('Delete admin ticket error:', error);
+        logger.error('Delete admin ticket error:', error);
         if (error.message === 'Ticket not found') {
             return res.status(404).json({ error: 'Ticket not found' });
         }
