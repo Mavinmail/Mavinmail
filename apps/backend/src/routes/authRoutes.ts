@@ -1,33 +1,19 @@
 import { Router } from 'express';
+import passport from 'passport';
 import { signup, login, getGoogleAuthUrl, handleGoogleCallback } from '../controllers/authController.js';
-import { authLimiter } from '../middleware/rateLimitMiddleware.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
+import { validate } from '../middleware/validate.js';
+import { signupSchema, loginSchema } from '../schemas/index.js';
 
 const router = Router();
 
-// @route   POST api/auth/signup
-// @desc    Register a new user
-// @access  Public
-router.post('/signup', authLimiter, signup);
+// Public auth routes with brute-force protection + input validation
+router.post('/signup', authLimiter, validate(signupSchema), signup);
+router.post('/login', authLimiter, validate(loginSchema), login);
 
-// @route   POST api/auth/login
-// @desc    Authenticate user & get token
-// @access  Public
-router.post('/login', authLimiter, login);
-
-
-
-// /backend/src/routes/authRoutes.ts
-import passport from 'passport';
-import { authMiddleware } from '../middleware/authMiddleware.js'; // We will create this
-
-// --- Google OAuth Flow ---
-
-// Step 1: Frontend requests the Google Auth URL from this SECURE endpoint
+// Google OAuth flow
 router.get('/google/url', authMiddleware, getGoogleAuthUrl);
-
-// Step 2: Google redirects the user here after consent.
-// This route is public, but we verify the user via the 'state' param.
 router.get('/google/callback', handleGoogleCallback);
-
 
 export default router;
