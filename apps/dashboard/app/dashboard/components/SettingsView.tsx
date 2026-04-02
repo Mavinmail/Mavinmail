@@ -31,6 +31,7 @@ export function SettingsView() {
     const [hasCustomGoogle, setHasCustomGoogle] = React.useState<boolean>(false)
     const [googleLoading, setGoogleLoading] = React.useState<boolean>(true)
     const [googleSaving, setGoogleSaving] = React.useState<boolean>(false)
+    const [customGoogleToggle, setCustomGoogleToggle] = React.useState<boolean>(false)
 
     // Fetch models and user preference on mount
     React.useEffect(() => {
@@ -50,6 +51,7 @@ export function SettingsView() {
                 
                 setGoogleClientId(googleCreds.googleClientId || "")
                 setHasCustomGoogle(googleCreds.hasCustomCredentials)
+                setCustomGoogleToggle(googleCreds.hasCustomCredentials)
                 setGoogleLoading(false)
 
                 // If user has a preference, use it. Otherwise use the default model from the list
@@ -137,10 +139,31 @@ export function SettingsView() {
             setGoogleClientId("")
             setGoogleClientSecret("")
             setHasCustomGoogle(false)
+            setCustomGoogleToggle(false)
         } catch (err: any) {
             setError(err.message || "Failed to clear Google credentials")
         } finally {
             setGoogleSaving(false)
+        }
+    }
+
+    const handleToggleCustomGoogle = async (checked: boolean) => {
+        if (!checked) {
+            // Turning OFF
+            if (hasCustomGoogle) {
+                if (window.confirm("Turning this off will clear your custom credentials. Are you sure?")) {
+                    await handleGoogleClear();
+                } else {
+                    // Revert toggle visually if they cancel
+                    setTimeout(() => setCustomGoogleToggle(true), 0);
+                    return;
+                }
+            } else {
+                setCustomGoogleToggle(false)
+            }
+        } else {
+            // Turning ON
+            setCustomGoogleToggle(true)
         }
     }
 
@@ -290,56 +313,71 @@ export function SettingsView() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {hasCustomGoogle ? (
-                                    <div className="flex items-center gap-2 p-3 text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
-                                        <CheckCircle2 className="w-4 h-4" />
-                                        Custom credentials are currently active.
+                                <div className="flex items-center justify-between space-x-2 pb-4 border-b border-border/50">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-base text-foreground">Use Custom Credentials</Label>
+                                        <p className="text-sm text-muted-foreground">Turn on to use your own Google Cloud Project for Gmail instead of the Mavinmail default.</p>
                                     </div>
-                                ) : (
-                                    <div className="flex items-center gap-2 p-3 text-sm text-muted-foreground bg-secondary/20 border border-border/50 rounded-lg">
-                                        You are currently using the default global Mavinmail credentials.
+                                    <Switch 
+                                        checked={customGoogleToggle} 
+                                        onCheckedChange={handleToggleCustomGoogle} 
+                                        disabled={googleSaving}
+                                    />
+                                </div>
+                                {customGoogleToggle && (
+                                    <div className="space-y-4 pt-2 animate-in fade-in slide-in-from-top-2">
+                                        {hasCustomGoogle ? (
+                                            <div className="flex items-center gap-2 p-3 text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                                                <CheckCircle2 className="w-4 h-4" />
+                                                Custom credentials are currently active.
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2 p-3 text-sm text-muted-foreground bg-secondary/20 border border-border/50 rounded-lg">
+                                                Enter credentials to override the default global Mavinmail client.
+                                            </div>
+                                        )}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="google-client-id">Google Client ID</Label>
+                                            <Input
+                                                id="google-client-id"
+                                                placeholder="e.g. 123456789-abc...apps.googleusercontent.com"
+                                                value={googleClientId}
+                                                onChange={(e) => setGoogleClientId(e.target.value)}
+                                                className="bg-background"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="google-client-secret">Google Client Secret {hasCustomGoogle && "(Hidden for security)"}</Label>
+                                            <Input
+                                                id="google-client-secret"
+                                                type="password"
+                                                placeholder={hasCustomGoogle ? "Leave empty to keep current secret or enter to replace" : "Enter client secret"}
+                                                value={googleClientSecret}
+                                                onChange={(e) => setGoogleClientSecret(e.target.value)}
+                                                className="bg-background"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2 pt-2">
+                                            <Button 
+                                                variant="default" 
+                                                onClick={handleGoogleSave}
+                                                disabled={googleSaving || (!googleClientSecret && !hasCustomGoogle)}
+                                            >
+                                                {googleSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                Save Credentials
+                                            </Button>
+                                            {hasCustomGoogle && (
+                                                <Button 
+                                                    variant="destructive" 
+                                                    onClick={handleGoogleClear}
+                                                    disabled={googleSaving}
+                                                >
+                                                    Clear Credentials
+                                                </Button>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
-                                <div className="space-y-2">
-                                    <Label htmlFor="google-client-id">Google Client ID</Label>
-                                    <Input
-                                        id="google-client-id"
-                                        placeholder="e.g. 123456789-abc...apps.googleusercontent.com"
-                                        value={googleClientId}
-                                        onChange={(e) => setGoogleClientId(e.target.value)}
-                                        className="bg-background"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="google-client-secret">Google Client Secret {hasCustomGoogle && "(Hidden for security)"}</Label>
-                                    <Input
-                                        id="google-client-secret"
-                                        type="password"
-                                        placeholder={hasCustomGoogle ? "Leave empty to keep current secret or enter to replace" : "Enter client secret"}
-                                        value={googleClientSecret}
-                                        onChange={(e) => setGoogleClientSecret(e.target.value)}
-                                        className="bg-background"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-2 pt-2">
-                                    <Button 
-                                        variant="default" 
-                                        onClick={handleGoogleSave}
-                                        disabled={googleSaving || (!googleClientSecret && !hasCustomGoogle)}
-                                    >
-                                        {googleSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                        Save Credentials
-                                    </Button>
-                                    {hasCustomGoogle && (
-                                        <Button 
-                                            variant="destructive" 
-                                            onClick={handleGoogleClear}
-                                            disabled={googleSaving}
-                                        >
-                                            Clear Credentials
-                                        </Button>
-                                    )}
-                                </div>
                             </div>
                         )}
                     </CardContent>
