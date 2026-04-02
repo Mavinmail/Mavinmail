@@ -28,6 +28,12 @@ class InvalidCredentialsError extends CredentialsSignin {
     code = "InvalidCredentials"
 }
 
+const AUTH_API_BASE_URL = (
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.API_URL ||
+    "http://localhost:5001/api"
+).replace(/\/$/, "")
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
     secret: process.env.AUTH_SECRET,
     providers: [
@@ -43,7 +49,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     }
 
                     // Call existing backend API
-                    const res = await fetch("http://localhost:5001/api/auth/login", {
+                    const res = await fetch(`${AUTH_API_BASE_URL}/auth/login`, {
                         method: "POST",
                         body: JSON.stringify({
                             email: credentials.email,
@@ -143,4 +149,3 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         strategy: "jwt",
     },
 })
-
