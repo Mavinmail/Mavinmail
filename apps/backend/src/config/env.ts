@@ -35,6 +35,7 @@ const envSchema = z.object({
     DEFAULT_AI_MODEL: z.string().optional(),
     FALLBACK_AI_MODEL: z.string().optional(),
     DASHBOARD_URL: z.string().optional(),
+    CORS_ORIGINS: z.string().optional(),
     REDIS_URL: z.string().optional(),
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 });
