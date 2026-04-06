@@ -1,6 +1,7 @@
 import React from 'react'
-import { DitherBackground } from "@/components/ui/dither-background"
-import { cn } from "@/lib/utils"
+import Link from 'next/link'
+import Image from 'next/image'
+import mavinlogo from '@/public/mavinlogo.png'
 
 interface AuthLayoutProps {
     children: React.ReactNode
@@ -11,59 +12,63 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, heading, subheading, quote }: AuthLayoutProps) {
     return (
-        <div className="flex min-h-screen w-full bg-[#111] text-cyan-400 overflow-hidden font-sans">
-            <DitherBackground />
-            <div className="flex w-full h-screen z-10">
-                {/* Left Side: Cinematic Story */}
-                <div className="hidden lg:flex w-[55%] relative flex-col justify-between p-12 overflow-hidden">
-                    {/* Background Image Container */}
-                    <div
-                        className="absolute inset-0 z-0 bg-cover bg-center opacity-60 mix-blend-overlay"
-                        style={{ backgroundImage: 'url(/background_cinematic_dither.png)' }}
-                    />
-                    {/* Gradient Overlay for readibility */}
-                    <div className="absolute inset-0 z-10 bg-gradient-to-tr from-black/80 via-transparent to-transparent" />
+        <div className="min-h-screen w-full bg-[#0C0C0C] text-white font-sans">
+            <div className="flex min-h-screen max-w-6xl mx-auto px-6 md:px-12 lg:px-20">
+                {/* Left Side: Brand panel */}
+                <div className="hidden lg:flex w-1/2 flex-col justify-between py-12 pr-16">
                     {/* Top Brand */}
-                    <div className="relative z-20 flex items-center gap-3">
-                        <div className="w-8 h-8 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/10">
-                            <span className="text-white font-bold text-sm">M</span>
-                        </div>
-                        <span className="text-xl font-medium tracking-tight text-white/90">MavinMail</span>
-                    </div>
-                    {/* Bottom Quote/Story */}
-                    <div className="relative z-20 max-w-lg">
-                        <blockquote className="text-2xl font-light leading-relaxed text-white/90 tracking-wide">
-                            {quote || `\"Email wasn’t meant to be overwhelming. This is where clarity begins.\"`}
+                    <Link href="/" className="flex items-center gap-2.5">
+                        <Image src={mavinlogo} alt="MavinMail" className="w-7 h-7 rounded-md" width={28} height={28} />
+                        <span className="text-[15px] font-semibold text-white tracking-[-0.02em]">
+                            MavinMail
+                        </span>
+                    </Link>
+
+                    {/* Center content */}
+                    <div className="max-w-sm">
+                        <blockquote className="text-[28px] font-semibold leading-tight text-white tracking-[-0.02em]">
+                            {quote || "Your inbox, intelligently handled."}
                         </blockquote>
+                        <p className="mt-4 text-[15px] text-zinc-500 leading-relaxed">
+                            MavinMail reads, summarizes, and drafts replies so you can focus on what matters.
+                        </p>
                     </div>
+
+                    {/* Bottom */}
+                    <p className="text-[12px] text-zinc-700">
+                        &copy; 2026 MavinMail. All rights reserved.
+                    </p>
                 </div>
 
+                {/* Divider */}
+                <div className="hidden lg:block w-px bg-white/[0.06] my-12" />
+
                 {/* Right Side: Form Container */}
-                <div className="w-full lg:w-[45%] h-full flex flex-col items-center justify-start p-6 relative overflow-y-auto no-scrollbar">
-                    {/* Mobile Brand (Visible only when sidebar is hidden) */}
-                    <div className="lg:hidden absolute top-6 left-6 flex items-center gap-3 z-50">
-                        <div className="w-8 h-8 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/10">
-                            <span className="text-white font-bold text-sm">M</span>
-                        </div>
-                        <span className="text-xl font-medium tracking-tight text-white/90">MavinMail</span>
+                <div className="w-full lg:w-1/2 flex flex-col items-center justify-center py-12 lg:pl-16">
+                    {/* Mobile Brand */}
+                    <div className="lg:hidden self-start flex items-center gap-2.5 mb-12">
+                        <Link href="/" className="flex items-center gap-2.5">
+                            <Image src={mavinlogo} alt="MavinMail" className="w-7 h-7 rounded-md" width={28} height={28} />
+                            <span className="text-[15px] font-semibold text-white">MavinMail</span>
+                        </Link>
                     </div>
 
-                    <div className="w-full max-w-[420px] space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 my-auto py-12">
-                        <div className="space-y-2 text-center lg:text-left">
-                            <h1 className="text-3xl lg:text-4xl font-semibold tracking-tight text-white">
+                    <div className="w-full max-w-[380px] space-y-8">
+                        <div className="space-y-2">
+                            <h1 className="text-[28px] font-bold tracking-[-0.02em] text-white">
                                 {heading}
                             </h1>
-                            <p className="text-white/50 text-base font-light">
+                            <p className="text-[14px] text-zinc-500">
                                 {subheading}
                             </p>
                         </div>
 
-                        {/* Form Content - Simple Square Design */}
-                        <div className="bg-black/40 backdrop-blur-2xl border border-white/10 p-8 shadow-2xl">
+                        {/* Form content */}
+                        <div className="space-y-6">
                             {children}
                         </div>
 
-                        <p className="text-center text-xs text-cyan-400 font-mono uppercase tracking-widest mt-8">
+                        <p className="text-[12px] text-zinc-600 text-center">
                             Your data stays private. Always.
                         </p>
                     </div>
