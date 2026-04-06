@@ -94,7 +94,7 @@ export function AnalyticsView() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="space-y-1">
                     <h2 className="text-3xl font-bold tracking-tight text-foreground">
-                        📊 Analytics
+                        Analytics
                     </h2>
                     <p className="text-muted-foreground">
                         Detailed insights into your AI assistant usage
@@ -107,7 +107,7 @@ export function AnalyticsView() {
                             variant={timeRange === '7d' ? 'default' : 'ghost'}
                             size="sm"
                             onClick={() => setTimeRange('7d')}
-                            className="rounded-none"
+                            className="rounded-md"
                         >
                             7 Days
                         </Button>
@@ -115,7 +115,7 @@ export function AnalyticsView() {
                             variant={timeRange === '30d' ? 'default' : 'ghost'}
                             size="sm"
                             onClick={() => setTimeRange('30d')}
-                            className="rounded-none"
+                            className="rounded-md"
                         >
                             30 Days
                         </Button>
@@ -124,7 +124,7 @@ export function AnalyticsView() {
             </div>
 
             {/* Usage Over Time - Line Chart */}
-            <Card className="bg-card/50 backdrop-blur-sm border-border">
+            <Card className="bg-card border-border">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5 text-primary" />
@@ -178,7 +178,7 @@ export function AnalyticsView() {
             {/* Bottom Row - Pie Chart + Time Saved */}
             <div className="grid gap-6 md:grid-cols-2">
                 {/* Feature Breakdown Pie Chart */}
-                <Card className="bg-card/50 backdrop-blur-sm border-border">
+                <Card className="bg-card border-border">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <PieChartIcon className="h-5 w-5 text-primary" />
@@ -227,7 +227,7 @@ export function AnalyticsView() {
                 </Card>
 
                 {/* Time Saved Chart */}
-                <Card className="bg-card/50 backdrop-blur-sm border-border">
+                <Card className="bg-card border-border">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Clock className="h-5 w-5 text-primary" />

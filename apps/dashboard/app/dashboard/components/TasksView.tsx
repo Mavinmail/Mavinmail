@@ -204,7 +204,7 @@ export function TasksView() {
                                 key={task.id}
                                 open={isOpen}
                                 onOpenChange={() => toggleTask(task.id)}
-                                className="group/task bg-card border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all hover:border-primary/20"
+                                className="group/task bg-card border rounded-lg overflow-hidden hover:border-primary/20 transition-all"
                             >
                                 <div
                                     className="flex items-center justify-between p-4 cursor-pointer"
