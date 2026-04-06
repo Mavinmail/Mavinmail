@@ -19,8 +19,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "MavinMail - The New Inbox",
-  description: "An AI assistant that understands context, tone, and intent.",
+  title: "MavinMail – AI Email Assistant for Smart Inbox Management",
+  description: "Automate your emails with AI. Summarize, reply, and organize your inbox effortlessly with MavinMail.",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased bg-background text-foreground font-sans`}
       >
