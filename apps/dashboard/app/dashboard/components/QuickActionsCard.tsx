@@ -63,14 +63,11 @@ export function QuickActionsCard() {
     ];
 
     return (
-        <Card className="bg-card/50 backdrop-blur-sm border-border h-full relative overflow-hidden">
-            {/* Corner accents for visual detail */}
-            <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-primary/20" />
-            <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-primary/20" />
+        <Card className="bg-card border-border h-full relative overflow-hidden">
 
             <CardHeader className="pb-3">
                 <CardTitle className="text-card-foreground flex items-center gap-2">
-                    ⚡ Quick Actions
+                    Quick Actions
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
                     Common tasks at your fingertips
@@ -87,8 +84,8 @@ export function QuickActionsCard() {
                             onClick={action.action}
                             className={
                                 isPrimary
-                                    ? 'w-full justify-start bg-primary hover:bg-primary/90 text-primary-foreground rounded-none relative group overflow-hidden'
-                                    : 'w-full justify-start border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-none hover:border-l-primary hover:border-l-4 transition-all duration-200'
+                                    ? 'w-full justify-start bg-primary hover:bg-primary/90 text-primary-foreground rounded-md relative group overflow-hidden'
+                                    : 'w-full justify-start border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-md hover:border-l-primary hover:border-l-2 transition-all duration-200'
                             }
                             variant={isPrimary ? 'default' : 'outline'}
                         >

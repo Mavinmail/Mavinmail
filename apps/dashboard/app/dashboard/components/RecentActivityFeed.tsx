@@ -94,10 +94,10 @@ function SkeletonActivityItem() {
 
 export function RecentActivityFeed({ activities, isLoading }: RecentActivityFeedProps) {
     return (
-        <Card className="bg-card/50 backdrop-blur-sm border-border h-full">
+        <Card className="bg-card border-border h-full">
             <CardHeader className="pb-3">
                 <CardTitle className="text-card-foreground flex items-center gap-2">
-                    🤖 Recent AI Activity
+                    Recent AI Activity
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
                     Your assistant has been busy
