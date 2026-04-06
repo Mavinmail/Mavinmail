@@ -3,7 +3,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import {
     LayoutDashboard,
@@ -15,12 +14,11 @@ import {
     Menu,
     ChevronLeft,
     ChevronRight,
-    Bot,
     BarChart3,
     Calendar
 } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
+import Image from "next/image"
 import mavinlogo from "@/public/mavinlogo.png"
 
 interface NavItem {
@@ -52,51 +50,59 @@ export function Sidebar({ className, activeView, onViewChange, isCollapsed, togg
     const navItems = customNavItems || defaultNavItems
 
     return (
-        <div className={cn("relative flex flex-col h-screen border-r border-sidebar-border bg-sidebar transition-all duration-300", isCollapsed ? "w-16" : "w-64", className)}>
-            <div className="flex items-center h-16 px-4 border-b border-sidebar-border">
-                <Link href="/dashboard" className="flex items-center">
-                    <Image
-                        src={mavinlogo}
-                        alt="MavinMail Logo"
-                        className="w-6 h-6 mr-2"
-                        width={24}
-                        height={24}
-                    />
-                    {!isCollapsed && <span className="text-lg font-bold text-sidebar-foreground tracking-wider">MavinMail</span>}
+        <div className={cn(
+            "relative flex flex-col h-screen border-r border-white/[0.06] bg-[#0C0C0C] transition-all duration-300",
+            isCollapsed ? "w-16" : "w-60",
+            className
+        )}>
+            {/* Logo */}
+            <div className="flex items-center h-16 px-4 border-b border-white/[0.06]">
+                <Link href="/dashboard" className="flex items-center gap-2.5">
+                    <Image src={mavinlogo} alt="MavinMail" className="w-7 h-7 rounded-md flex-shrink-0" width={28} height={28} />
+                    {!isCollapsed && (
+                        <span className="text-[14px] font-semibold text-white tracking-[-0.02em]">
+                            MavinMail
+                        </span>
+                    )}
                 </Link>
             </div>
 
-            <div className="flex-1 py-4">
-                <nav className="grid gap-1 px-2">
+            {/* Nav */}
+            <div className="flex-1 py-3 overflow-y-auto">
+                <nav className="grid gap-0.5 px-2">
                     {navItems.map((item) => (
-                        <Button
+                        <button
                             key={item.view}
-                            variant="ghost"
                             className={cn(
-                                "justify-start transition-all duration-200 rounded-none border-l-2 border-transparent",
+                                "flex items-center gap-3 h-9 px-3 rounded-md text-[13px] font-medium transition-colors w-full text-left",
                                 activeView === item.view
-                                    ? "bg-sidebar-primary/10 text-sidebar-primary border-sidebar-primary"
-                                    : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:border-sidebar-accent-foreground/50",
-                                isCollapsed ? "justify-center px-2" : "px-4"
+                                    ? "bg-[#161616] text-white"
+                                    : "text-zinc-500 hover:text-zinc-300 hover:bg-[#111111]",
+                                isCollapsed && "justify-center px-0"
                             )}
                             onClick={() => onViewChange(item.view)}
                         >
-                            {(item.icon as any) && <item.icon className={cn("h-5 w-5", isCollapsed ? "mr-0" : "mr-3", activeView === item.view && "stroke-[2.5px]")} />}
+                            {(item.icon as any) && <item.icon className={cn(
+                                "h-4 w-4 flex-shrink-0",
+                                activeView === item.view ? "text-[#24D3EE]" : "text-zinc-600"
+                            )} />}
                             {!isCollapsed && <span>{item.name}</span>}
-                        </Button>
+                        </button>
                     ))}
                 </nav>
             </div>
 
-            <div className="p-4 border-t border-sidebar-border">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-full flex items-center justify-center text-sidebar-foreground/70 hover:text-sidebar-primary"
+            {/* Collapse toggle */}
+            <div className="p-3 border-t border-white/[0.06]">
+                <button
+                    className="w-full flex items-center justify-center h-8 rounded-md text-zinc-600 hover:text-zinc-400 hover:bg-[#111111] transition-colors"
                     onClick={toggleCollapse}
                 >
-                    {isCollapsed ? React.createElement(ChevronRight as any, { className: "h-5 w-5" }) : React.createElement(ChevronLeft as any, { className: "h-5 w-5" })}
-                </Button>
+                    {isCollapsed
+                        ? React.createElement(ChevronRight as any, { className: "h-4 w-4" })
+                        : React.createElement(ChevronLeft as any, { className: "h-4 w-4" })
+                    }
+                </button>
             </div>
         </div>
     )
@@ -108,11 +114,11 @@ export function MobileSidebar({ activeView, onViewChange, navItems }: { activeVi
     return (
         <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden text-sidebar-foreground/70">
-                    {React.createElement(Menu as any, { className: "h-6 w-6" })}
+                <Button variant="ghost" size="icon" className="md:hidden text-zinc-500">
+                    {React.createElement(Menu as any, { className: "h-5 w-5" })}
                 </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 bg-sidebar border-sidebar-border w-64 text-sidebar-foreground">
+            <SheetContent side="left" className="p-0 bg-[#0C0C0C] border-white/[0.06] w-60 text-white">
                 <SheetHeader className="sr-only">
                     <SheetTitle>Navigation Menu</SheetTitle>
                 </SheetHeader>

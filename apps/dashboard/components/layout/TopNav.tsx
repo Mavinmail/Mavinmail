@@ -1,6 +1,6 @@
 "use client"
 
-import { Book, HelpCircle, Bell, Search } from "lucide-react"
+import { Book, HelpCircle, Search } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,19 +12,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { MobileSidebar } from "./Sidebar"
-import { ModeToggle } from "@/components/mode-toggle"
 
 import { useSession, signOut } from "next-auth/react"
-
 import Link from "next/link"
 
 interface TopNavProps {
@@ -44,83 +34,71 @@ export function TopNav({ activeView, onViewChange, navItems }: TopNavProps) {
         return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     }
 
-    // Determine display name: prefer name, fallback to email username, then "User"
     const displayName = session?.user?.name || session?.user?.email?.split('@')[0] || "User"
 
     return (
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/80 backdrop-blur-sm px-6">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-white/[0.06] bg-[#0C0C0C] px-6">
             <MobileSidebar activeView={activeView} onViewChange={onViewChange} navItems={navItems} />
 
             <div className="flex flex-1 items-center gap-4">
-                <Breadcrumb className="hidden md:flex">
-                    <BreadcrumbList>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink asChild className="text-muted-foreground hover:text-primary">
-                                <Link href="/dashboard">Home</Link>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbPage className="text-primary font-medium">{viewName}</BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
+                {/* Breadcrumb */}
+                <div className="hidden md:flex items-center gap-2 text-[13px]">
+                    <Link href="/dashboard" className="text-zinc-600 hover:text-white transition-colors">
+                        Home
+                    </Link>
+                    <span className="text-zinc-700">/</span>
+                    <span className="text-white font-medium">{viewName}</span>
+                </div>
             </div>
 
-            <div className="flex items-center gap-4">
-                <div className="relative hidden md:block w-64">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-3">
+                {/* Search */}
+                <div className="relative hidden md:block w-56">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-600" />
                     <Input
                         type="search"
                         placeholder="Search..."
-                        className="w-full bg-muted/50 border-input pl-9 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/50 rounded-none border-b focus:border-b-primary focus-visible:ring-0"
+                        className="w-full h-8 bg-[#161616] border-white/[0.06] pl-9 text-[13px] text-white placeholder:text-zinc-600 rounded-md focus-visible:ring-[#24D3EE]/20 focus-visible:border-[#24D3EE]/30"
                     />
                 </div>
 
-                <ModeToggle />
+                <button className="h-8 w-8 flex items-center justify-center rounded-md text-zinc-600 hover:text-zinc-400 hover:bg-[#161616] transition-colors">
+                    <Book className="h-4 w-4" />
+                </button>
+                <button className="h-8 w-8 flex items-center justify-center rounded-md text-zinc-600 hover:text-zinc-400 hover:bg-[#161616] transition-colors">
+                    <HelpCircle className="h-4 w-4" />
+                </button>
 
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary rounded-none">
-                    <Book className="h-5 w-5" />
-                    <span className="sr-only">Docs</span>
-                </Button>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-primary rounded-none">
-                    <HelpCircle className="h-5 w-5" />
-                    <span className="sr-only">Support</span>
-                </Button>
-
+                {/* User dropdown */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="relative h-10 flex items-center gap-2 px-2 hover:bg-muted/50 rounded-none">
-                            <span className="hidden sm:inline-block text-sm font-medium">{displayName}</span>
-                            <Avatar className="h-8 w-8 border border-border rounded-none">
-                                <AvatarImage src={session?.user?.image || "/avatars/01.png"} alt="@user" className="rounded-none object-cover" />
-                                <AvatarFallback className="bg-muted text-primary rounded-none font-medium text-xs">
+                        <button className="flex items-center gap-2 px-2 h-8 rounded-md hover:bg-[#161616] transition-colors">
+                            <span className="hidden sm:inline-block text-[13px] font-medium text-zinc-400">{displayName}</span>
+                            <Avatar className="h-6 w-6 rounded-md">
+                                <AvatarImage src={session?.user?.image || "/avatars/01.png"} alt="@user" className="rounded-md object-cover" />
+                                <AvatarFallback className="bg-[#161616] text-[#24D3EE] rounded-md font-medium text-[10px]">
                                     {getInitials(displayName)}
                                 </AvatarFallback>
                             </Avatar>
-                        </Button>
+                        </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56 bg-card border-border text-foreground" align="end" forceMount>
+                    <DropdownMenuContent className="w-52 bg-[#111111] border-white/[0.06] text-white" align="end" forceMount>
                         <DropdownMenuLabel className="font-normal">
                             <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none">
-                                    {displayName}
-                                </p>
-                                <p className="text-xs leading-none text-muted-foreground">
-                                    {session?.user?.email || "user@example.com"}
-                                </p>
+                                <p className="text-[13px] font-medium">{displayName}</p>
+                                <p className="text-[11px] text-zinc-500">{session?.user?.email || "user@example.com"}</p>
                             </div>
                         </DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-border" />
-                        <DropdownMenuItem className="focus:bg-muted focus:text-primary" onClick={() => onViewChange('profile')}>
+                        <DropdownMenuSeparator className="bg-white/[0.06]" />
+                        <DropdownMenuItem className="text-[13px] text-zinc-400 focus:bg-[#161616] focus:text-white" onClick={() => onViewChange('profile')}>
                             Profile
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="focus:bg-muted focus:text-primary" onClick={() => onViewChange('settings')}>
+                        <DropdownMenuItem className="text-[13px] text-zinc-400 focus:bg-[#161616] focus:text-white" onClick={() => onViewChange('settings')}>
                             Settings
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-border" />
+                        <DropdownMenuSeparator className="bg-white/[0.06]" />
                         <DropdownMenuItem
-                            className="focus:bg-muted focus:text-primary text-destructive"
+                            className="text-[13px] text-red-400 focus:bg-[#161616] focus:text-red-400"
                             onClick={() => signOut({ callbackUrl: '/login' })}
                         >
                             Log out
