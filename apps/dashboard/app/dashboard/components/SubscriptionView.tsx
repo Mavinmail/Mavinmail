@@ -13,12 +13,12 @@ interface CreditData {
 }
 
 const FEATURE_COSTS = [
-    { name: "Summarize Email", cost: 5, icon: "📧" },
-    { name: "Draft Reply", cost: 10, icon: "✍️" },
-    { name: "Enhance Text", cost: 2, icon: "✨" },
-    { name: "Ask Question (RAG)", cost: 15, icon: "🔍" },
-    { name: "Autocomplete", cost: 1, icon: "⚡" },
-    { name: "Schedule Task", cost: 20, icon: "📅" },
+    { name: "Summarize Email", cost: 5 },
+    { name: "Draft Reply", cost: 10 },
+    { name: "Enhance Text", cost: 2 },
+    { name: "Ask Question (RAG)", cost: 15 },
+    { name: "Autocomplete", cost: 1 },
+    { name: "Schedule Task", cost: 20 },
 ]
 
 export function SubscriptionView() {
@@ -168,7 +168,7 @@ export function SubscriptionView() {
                         <CardHeader>
                             <CardTitle className="text-foreground flex items-center gap-2">
                                 <Crown className="h-5 w-5 text-yellow-400" />
-                                {isPro ? "Already Pro ✓" : "Upgrade to Pro — $30"}
+                                {isPro ? "Already Pro" : "Upgrade to Pro — $30"}
                             </CardTitle>
                             <CardDescription className="text-muted-foreground">
                                 {isPro ? "You already have Pro access." : "Get 10,000 credits and Pro status."}
@@ -260,7 +260,6 @@ export function SubscriptionView() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                         {FEATURE_COSTS.map((feature) => (
                             <div key={feature.name} className="flex items-center gap-3 p-3 rounded-lg bg-background border border-border">
-                                <span className="text-lg">{feature.icon}</span>
                                 <div>
                                     <p className="text-sm font-medium text-foreground">{feature.name}</p>
                                     <p className="text-xs text-muted-foreground">{feature.cost} credits</p>
