@@ -27,7 +27,7 @@ function CustomTooltip({ active, payload, label }: {
     if (!active || !payload) return null;
 
     return (
-        <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+        <div className="bg-[#111111] border border-white/[0.06] rounded-lg p-3">
             <p className="text-sm font-medium text-foreground mb-2">{label}</p>
             <div className="space-y-1">
                 {payload.map((entry) => (
@@ -52,7 +52,7 @@ function formatDate(dateStr: string): string {
 
 function SkeletonChart() {
     return (
-        <Card className="bg-card/50 backdrop-blur-sm border-border">
+        <Card className="bg-card border-border">
             <CardHeader>
                 <CardTitle className="text-card-foreground flex items-center gap-2">
                     <div className="h-5 w-5 bg-muted rounded animate-pulse" />
@@ -97,10 +97,10 @@ export function ActivityChart({ trends, isLoading }: ActivityChartProps) {
     });
 
     return (
-        <Card className="bg-card/50 backdrop-blur-sm border-border">
+        <Card className="bg-card border-border">
             <CardHeader>
                 <CardTitle className="text-card-foreground flex items-center gap-2">
-                    📊 Activity This Week
+                    Activity This Week
                 </CardTitle>
             </CardHeader>
             <CardContent>
