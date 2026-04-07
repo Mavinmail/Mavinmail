@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Loader2, CheckCircle2, AlertCircle, Eye, EyeOff } from "lucide-react"
-import { getUserProfile, updateUserProfile, type UserProfile } from "@/lib/api"
+import { changeUserPassword, getUserProfile, updateUserProfile, type UserProfile } from "@/lib/api"
 
 // Module-level cache
 let profileCache: UserProfile | null = null;
@@ -28,6 +28,21 @@ export function ProfileView() {
     const [showPasswordField, setShowPasswordField] = useState(false)
     const [currentPassword, setCurrentPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+
+    // Password change state
+    const [passwordForm, setPasswordForm] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+    })
+    const [showSecurityPassword, setShowSecurityPassword] = useState({
+        current: false,
+        next: false,
+        confirm: false,
+    })
+    const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+    const [passwordStatus, setPasswordStatus] = useState<'idle' | 'success' | 'error'>('idle')
+    const [passwordError, setPasswordError] = useState('')
 
     useEffect(() => {
         loadProfile()
@@ -103,6 +118,60 @@ export function ProfileView() {
             setErrorMessage(error.message || 'Failed to update profile')
         } finally {
             setIsSaving(false)
+        }
+    }
+
+    const passwordRules = [
+        { label: 'At least 8 characters', valid: passwordForm.newPassword.length >= 8 },
+        { label: 'One uppercase letter', valid: /[A-Z]/.test(passwordForm.newPassword) },
+        { label: 'One lowercase letter', valid: /[a-z]/.test(passwordForm.newPassword) },
+        { label: 'One number', valid: /[0-9]/.test(passwordForm.newPassword) },
+    ]
+
+    const isPasswordFormValid =
+        passwordForm.currentPassword.length > 0 &&
+        passwordRules.every(rule => rule.valid) &&
+        passwordForm.newPassword === passwordForm.confirmPassword &&
+        passwordForm.newPassword.length > 0
+
+    const handlePasswordChange = async () => {
+        if (!isPasswordFormValid) {
+            setPasswordStatus('error')
+            setPasswordError(
+                passwordForm.newPassword !== passwordForm.confirmPassword
+                    ? 'New password and confirmation must match'
+                    : 'Please complete all password requirements before saving'
+            )
+            return
+        }
+
+        try {
+            setIsUpdatingPassword(true)
+            setPasswordStatus('idle')
+            setPasswordError('')
+
+            const result = await changeUserPassword({
+                currentPassword: passwordForm.currentPassword,
+                newPassword: passwordForm.newPassword,
+            })
+
+            if (result.success) {
+                setPasswordStatus('success')
+                setPasswordForm({
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: '',
+                })
+                setTimeout(() => setPasswordStatus('idle'), 3000)
+            } else {
+                setPasswordStatus('error')
+                setPasswordError(result.error || 'Failed to update password')
+            }
+        } catch (error: any) {
+            setPasswordStatus('error')
+            setPasswordError(error.message || 'Failed to update password')
+        } finally {
+            setIsUpdatingPassword(false)
         }
     }
 
@@ -253,6 +322,124 @@ export function ProfileView() {
                                     </>
                                 ) : (
                                     'Save Profile'
+                                )}
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-card border-border md:col-span-2">
+                    <CardHeader>
+                        <CardTitle className="text-foreground">Security</CardTitle>
+                        <CardDescription className="text-muted-foreground">
+                            Change your account password from the dashboard.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid gap-4 md:grid-cols-3">
+                            <div className="space-y-2">
+                                <Label htmlFor="password-current" className="text-foreground">Current password</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="password-current"
+                                        type={showSecurityPassword.current ? "text" : "password"}
+                                        placeholder="Current password"
+                                        value={passwordForm.currentPassword}
+                                        onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                                        className="bg-muted/50 border-input text-foreground focus-visible:ring-primary/50 pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSecurityPassword(prev => ({ ...prev, current: !prev.current }))}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    >
+                                        {showSecurityPassword.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="password-new" className="text-foreground">New password</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="password-new"
+                                        type={showSecurityPassword.next ? "text" : "password"}
+                                        placeholder="New password"
+                                        value={passwordForm.newPassword}
+                                        onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                                        className="bg-muted/50 border-input text-foreground focus-visible:ring-primary/50 pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSecurityPassword(prev => ({ ...prev, next: !prev.next }))}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    >
+                                        {showSecurityPassword.next ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="password-confirm" className="text-foreground">Confirm new password</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="password-confirm"
+                                        type={showSecurityPassword.confirm ? "text" : "password"}
+                                        placeholder="Confirm new password"
+                                        value={passwordForm.confirmPassword}
+                                        onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                                        className="bg-muted/50 border-input text-foreground focus-visible:ring-primary/50 pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSecurityPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    >
+                                        {showSecurityPassword.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="rounded-lg border border-border bg-muted/30 p-4">
+                            <p className="mb-3 text-sm font-medium text-foreground">Password requirements</p>
+                            <div className="grid gap-2 md:grid-cols-2">
+                                {passwordRules.map((rule) => (
+                                    <div key={rule.label} className={`text-sm ${rule.valid ? 'text-emerald-500' : 'text-muted-foreground'}`}>
+                                        {rule.valid ? 'OK' : '•'} {rule.label}
+                                    </div>
+                                ))}
+                                <div className={`text-sm ${passwordForm.confirmPassword.length === 0 || passwordForm.newPassword === passwordForm.confirmPassword ? 'text-muted-foreground' : 'text-destructive'}`}>
+                                    {passwordForm.confirmPassword.length > 0 && passwordForm.newPassword !== passwordForm.confirmPassword ? '•' : 'OK'} Password confirmation matches
+                                </div>
+                            </div>
+                        </div>
+
+                        {passwordStatus === 'error' && (
+                            <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
+                                <AlertCircle className="h-4 w-4" />
+                                {passwordError}
+                            </div>
+                        )}
+
+                        {passwordStatus === 'success' && (
+                            <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-500 text-sm">
+                                <CheckCircle2 className="h-4 w-4" />
+                                Password updated successfully
+                            </div>
+                        )}
+
+                        <div className="flex justify-end">
+                            <Button
+                                onClick={handlePasswordChange}
+                                disabled={isUpdatingPassword || !isPasswordFormValid}
+                                className="bg-primary hover:bg-primary/90 text-primary-foreground min-w-[160px]"
+                            >
+                                {isUpdatingPassword ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Updating...
+                                    </>
+                                ) : (
+                                    'Update Password'
                                 )}
                             </Button>
                         </div>

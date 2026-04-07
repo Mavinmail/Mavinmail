@@ -46,7 +46,7 @@ export function AuditLogsView() {
                 <h1 className="text-3xl font-bold tracking-tight">Audit Logs</h1>
             </div>
 
-            <Card className="rounded-none border-border">
+            <Card className="rounded-lg border-border">
                 <CardHeader>
                     <CardTitle className="text-lg font-medium flex items-center gap-2">
                         <Shield className="h-4 w-4" />
