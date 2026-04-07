@@ -1,7 +1,23 @@
 import axios from 'axios';
+import {
+  autocompleteWithLocalModel,
+  enhanceWithLocalModel,
+  generalChatWithLocalModel,
+  getLocalModelAccessError,
+  isLocalModel,
+  summarizeWithLocalModel,
+} from './localLlm.js';
 
-// IMPORTANT: Use the actual backend URL, not a relative path.
-const API_URL = 'http://localhost:5001/api';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace(/\/$/, '');
+
+export type UsageAction =
+  | 'summarize'
+  | 'draft'
+  | 'enhance'
+  | 'rag_query'
+  | 'digest'
+  | 'thread_summary'
+  | 'autocomplete';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -45,14 +61,60 @@ export const login = async (credentials: { email: string; password: string }) =>
     // The response from your backend should contain the token
     return response.data;
   } catch (error: any) {
+    if (!error.response) {
+      throw new Error(`Could not reach the API at ${API_URL}. Start the backend or update VITE_API_URL.`);
+    }
     if (error.response?.status === 429) {
       throw new Error(error.response.data.error || 'Too many attempts. Please try again after 15 minutes.');
     }
     throw new Error(error.response?.data?.error || 'Login failed. Please check your credentials.');
   }
 };
-export const summarizeEmailText = async (text: string): Promise<{ summary: string }> => {
+
+const getStoredModelContext = async (): Promise<{ token: string | null; selectedModel: string | null }> => {
+  const result = await chrome.storage.local.get(['token', 'selectedModel']);
+
+  return {
+    token: typeof result.token === 'string' ? result.token : null,
+    selectedModel: typeof result.selectedModel === 'string' ? result.selectedModel : null,
+  };
+};
+
+const getAuthorizedLocalModel = async (): Promise<string | null> => {
+  const { token, selectedModel } = await getStoredModelContext();
+  if (!isLocalModel(selectedModel)) {
+    return null;
+  }
+
+  const accessError = getLocalModelAccessError(token, selectedModel);
+  if (accessError) {
+    throw new Error(accessError);
+  }
+
+  return selectedModel;
+};
+
+export const trackUsageEvent = async (
+  action: UsageAction,
+  metadata: Record<string, unknown> = {},
+  success: boolean = true
+): Promise<void> => {
   try {
+    await api.post('/dashboard/usage', { action, metadata, success });
+  } catch (error) {
+    console.warn('Failed to track usage event:', error);
+  }
+};
+
+export const summarizeEmailText = async (text: string): Promise<{ summary: Record<string, unknown> | string }> => {
+  try {
+    const localModel = await getAuthorizedLocalModel();
+    if (localModel) {
+      const summary = await summarizeWithLocalModel(text, localModel);
+      await trackUsageEvent('summarize', { model: localModel, local: true });
+      return { summary };
+    }
+
     // The interceptor will automatically add the auth token
     const response = await api.post('/ai/summarize', { text });
     return response.data;
@@ -66,6 +128,13 @@ export const summarizeEmailText = async (text: string): Promise<{ summary: strin
 // auto complete
 export const fetchAutocomplete = async (text: string): Promise<{ suggestion: string }> => {
   try {
+    const localModel = await getAuthorizedLocalModel();
+    if (localModel) {
+      const suggestion = await autocompleteWithLocalModel(text, localModel);
+      await trackUsageEvent('autocomplete', { model: localModel, local: true });
+      return { suggestion };
+    }
+
     // The interceptor will automatically add the auth token
     const response = await api.post('/ai/autocomplete', { text });
     return response.data;
@@ -88,6 +157,13 @@ export const syncEmails = async (): Promise<{ message: string }> => {
 };
 
 export const askQuestion = async (question: string, useRag: boolean = true): Promise<{ answer: string }> => {
+  const localModel = await getAuthorizedLocalModel();
+  if (localModel && !useRag) {
+    const answer = await generalChatWithLocalModel(question, localModel);
+    await trackUsageEvent('rag_query', { query: question, model: localModel, useRag: false, local: true });
+    return { answer };
+  }
+
   const response = await api.post('/ai/ask', { question, useRag });
   return response.data;
 };
@@ -105,10 +181,26 @@ export const askQuestionStream = async (
   onError: (error: string) => void
 ): Promise<void> => {
   const result = await chrome.storage.local.get(['token', 'selectedModel']);
-  const token = result.token;
-  const selectedModel = result.selectedModel;
+  const token = typeof result.token === 'string' ? result.token : null;
+  const selectedModel = typeof result.selectedModel === 'string' ? result.selectedModel : null;
 
   try {
+    if (isLocalModel(selectedModel) && !useRag) {
+      const accessError = getLocalModelAccessError(token, selectedModel);
+      if (accessError) {
+        throw new Error(accessError);
+      }
+
+      onStatus('Using local Ollama model...');
+      const answer = await generalChatWithLocalModel(question, selectedModel);
+      if (answer) {
+        onChunk(answer);
+      }
+      await trackUsageEvent('rag_query', { query: question, model: selectedModel, useRag: false, local: true });
+      onDone();
+      return;
+    }
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'Authorization': token ? `Bearer ${token}` : '',
@@ -206,6 +298,13 @@ export const updateModelPreference = async (modelId: string) => {
 // --- Text Enhancement ---
 export const enhanceText = async (text: string, type: 'formal' | 'concise' | 'casual' | 'clarity' | 'more') => {
   try {
+    const localModel = await getAuthorizedLocalModel();
+    if (localModel) {
+      const enhancedText = await enhanceWithLocalModel(text, type, localModel);
+      await trackUsageEvent('enhance', { type, model: localModel, local: true });
+      return enhancedText;
+    }
+
     const response = await api.post('/ai/enhance', { text, type });
     return response.data.enhancedText;
   } catch (error) {
@@ -376,4 +475,3 @@ export const topUpCredits = async (code: string): Promise<{ message: string; cre
   const response = await api.post('/upgrade/top-up', { code });
   return response.data;
 };
-
