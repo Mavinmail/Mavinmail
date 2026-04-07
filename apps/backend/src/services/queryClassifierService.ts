@@ -333,7 +333,7 @@ const classifyByRules = (query: string): QueryClassification | null => {
 /**
  * LLM-based classification for complex queries
  */
-const classifyWithLLM = async (query: string): Promise<QueryClassification> => {
+const classifyWithLLM = async (query: string, model?: string): Promise<QueryClassification> => {
     const prompt = `Classify this email search query and extract relevant entities.
 
 Query: "${query}"
@@ -362,7 +362,7 @@ Intent meanings:
 Today's date is: ${new Date().toISOString().split('T')[0]}`;
 
     try {
-        const result = await OpenRouterService.generateJSON(prompt);
+        const result = await OpenRouterService.generateJSON(prompt, model);
 
         // Build filters from extracted entities
         const filters: PineconeFilter = {};
@@ -422,7 +422,7 @@ Today's date is: ${new Date().toISOString().split('T')[0]}`;
  * Main classification function
  * Tries rule-based first, falls back to LLM for complex queries
  */
-export const classifyQuery = async (query: string): Promise<QueryClassification> => {
+export const classifyQuery = async (query: string, model?: string): Promise<QueryClassification> => {
     logger.info(`[QueryClassifier] Classifying: "${query}"`);
 
     // Try rule-based classification first (faster, more reliable)
@@ -434,7 +434,7 @@ export const classifyQuery = async (query: string): Promise<QueryClassification>
 
     // Fall back to LLM for complex queries
     logger.info('[QueryClassifier] Using LLM for complex query');
-    const llmResult = await classifyWithLLM(query);
+    const llmResult = await classifyWithLLM(query, model);
     logger.info(`[QueryClassifier] LLM result: ${llmResult.intent} (confidence: ${llmResult.confidence})`);
 
     return llmResult;
