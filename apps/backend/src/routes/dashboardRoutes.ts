@@ -6,13 +6,16 @@
 
 import { Router } from 'express';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { validate } from '../middleware/validate.js';
 import {
     getStats,
     getActivity,
     getTrends,
     getAccountStats,
-    deleteActivityLog
+    deleteActivityLog,
+    recordUsage
 } from '../controllers/dashboardController.js';
+import { logUsageSchema } from '../schemas/index.js';
 
 const router = Router();
 
@@ -52,5 +55,11 @@ router.get('/account-stats', getAccountStats);
  * Delete a specific activity log
  */
 router.delete('/activity/:id', deleteActivityLog);
+
+/**
+ * POST /api/dashboard/usage
+ * Record a usage event from client-side local model flows
+ */
+router.post('/usage', validate(logUsageSchema), recordUsage);
 
 export default router;

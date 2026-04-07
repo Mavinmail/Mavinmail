@@ -15,7 +15,8 @@ import {
     getRecentActivity,
     getUsageTrends,
     getAccountEmailStats,
-    deleteActivity
+    deleteActivity,
+    logUsage
 } from '../services/analyticsService.js';
 
 // ============================================================================
@@ -166,10 +167,45 @@ export const deleteActivityLog = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * POST /api/dashboard/usage
+ * Records a client-side AI usage event so local-only flows still appear in dashboard metrics.
+ */
+export const recordUsage = async (req: Request, res: Response) => {
+    if (!req.user?.userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const userId = req.user.userId;
+    const { action, metadata, success } = req.body as {
+        action: Parameters<typeof logUsage>[0]['action'];
+        metadata?: Record<string, unknown>;
+        success?: boolean;
+    };
+
+    try {
+        await logUsage({
+            userId,
+            action,
+            metadata,
+            success,
+        });
+
+        res.status(200).json({ success: true });
+    } catch (error: any) {
+        logger.error('[DashboardController] Error recording usage:', error);
+        res.status(500).json({
+            error: 'Failed to record usage',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
+
 export default {
     getStats,
     getActivity,
     getTrends,
     getAccountStats,
     deleteActivityLog,
+    recordUsage,
 };
