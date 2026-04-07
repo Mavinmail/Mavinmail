@@ -9,7 +9,8 @@ import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, CheckCircle2, AlertCircle } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { getAvailableModels, getModelPreference, updateModelPreference, getGoogleCredentials, updateGoogleCredentials, type AIModel } from "@/lib/api"
+import { getAvailableModels, getModelPreference, updateModelPreference, getGoogleCredentials, updateGoogleCredentials, getAdminOllamaModels, type AIModel } from "@/lib/api"
+import { useSession } from "next-auth/react"
 
 // Module-level cache
 let settingsCache: {
@@ -18,6 +19,8 @@ let settingsCache: {
 } | null = null;
 
 export function SettingsView() {
+    const { data: session } = useSession()
+    
     const [models, setModels] = React.useState<AIModel[]>(settingsCache?.models || [])
     const [selectedModel, setSelectedModel] = React.useState<string>(settingsCache?.selectedModel || "")
     const [loading, setLoading] = React.useState(!settingsCache)
@@ -47,7 +50,21 @@ export function SettingsView() {
                     getModelPreference(),
                     getGoogleCredentials()
                 ])
-                setModels(availableModels)
+                
+                let allModels = [...availableModels];
+                
+                // If user is Admin, auto-fetch local Ollama models and append them
+                const role = session?.user?.role;
+                if (role === "ADMIN" || role === "SUPER_ADMIN") {
+                    try {
+                        const ollamaModels = await getAdminOllamaModels();
+                        allModels = [...allModels, ...ollamaModels];
+                    } catch (e) {
+                        console.warn("Failed to fetch local Ollama models", e);
+                    }
+                }
+                
+                setModels(allModels)
                 
                 setGoogleClientId(googleCreds.googleClientId || "")
                 setHasCustomGoogle(googleCreds.hasCustomCredentials)
@@ -59,14 +76,14 @@ export function SettingsView() {
                 if (currentPreference) {
                     newSelectedModel = currentPreference
                 } else {
-                    const defaultModel = availableModels.find(m => m.isDefault)
-                    newSelectedModel = defaultModel?.modelId || availableModels[0]?.modelId || ""
+                    const defaultModel = allModels.find(m => m.isDefault)
+                    newSelectedModel = defaultModel?.modelId || allModels[0]?.modelId || ""
                 }
                 setSelectedModel(newSelectedModel);
 
                 // Update cache
                 settingsCache = {
-                    models: availableModels,
+                    models: allModels,
                     selectedModel: newSelectedModel
                 };
 
@@ -77,7 +94,7 @@ export function SettingsView() {
             }
         }
         fetchData()
-    }, [])
+    }, [session?.user?.role])
 
     // Clear success message after 3 seconds
     React.useEffect(() => {

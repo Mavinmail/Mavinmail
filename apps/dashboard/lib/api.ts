@@ -400,6 +400,11 @@ export interface UpdateProfileData {
   currentPassword?: string; // Required when changing email
 }
 
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
 /**
  * Get user profile information
  */
@@ -437,6 +442,25 @@ export const updateUserProfile = async (data: UpdateProfileData): Promise<{
     return {
       success: false,
       error: errorData.error || 'Failed to update profile',
+      code: errorData.code,
+    };
+  }
+};
+
+export const changeUserPassword = async (data: ChangePasswordData): Promise<{
+  success: boolean;
+  message?: string;
+  error?: string;
+  code?: string;
+}> => {
+  try {
+    const response = await api.put('/user/password', data);
+    return response.data;
+  } catch (error: any) {
+    const errorData = error.response?.data || {};
+    return {
+      success: false,
+      error: errorData.error || 'Failed to update password',
       code: errorData.code,
     };
   }
@@ -680,6 +704,17 @@ export const getAdminModels = async (): Promise<AIModel[]> => {
     return response.data.models || [];
   } catch (error: any) {
     throw new Error(error.response?.data?.error || 'Failed to fetch models');
+  }
+};
+
+// Admin: Get local Ollama models (if available)
+export const getAdminOllamaModels = async (): Promise<AIModel[]> => {
+  try {
+    const response = await api.get('/models/admin/ollama');
+    return response.data.models || [];
+  } catch (error: any) {
+    console.warn('Failed to fetch Ollama models:', error.message);
+    return [];
   }
 };
 
