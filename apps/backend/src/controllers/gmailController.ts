@@ -11,11 +11,21 @@ const gmail = google.gmail('v1');
 
 // feauture 1 code
 
+// In-flight guard: prevent concurrent digest requests for the same user
+const digestInFlight = new Map<number, boolean>();
+
 export const getDailyDigest = async (req: AuthenticatedRequest, res: Response) => {
   const userId = Number(req.user?.userId);
   if (!Number.isFinite(userId)) {
     return res.status(400).json({ error: 'Invalid user id in token.' });
   }
+
+  // Prevent duplicate concurrent requests
+  if (digestInFlight.get(userId)) {
+    logger.warn(`[Digest] Request already in-flight for user ${userId}, rejecting duplicate.`);
+    return res.status(429).json({ error: 'A digest is already being generated. Please wait for it to complete.' });
+  }
+  digestInFlight.set(userId, true);
 
   // Get date from query parameter, default to today
   let targetDate: Date;
@@ -254,8 +264,7 @@ export const getDailyDigest = async (req: AuthenticatedRequest, res: Response) =
 
     logger.info(`Sending ${emailData.length} emails in a single batch to LLM API...`);
 
-    // 6. Call our AI service with STRUCTURED data
-    const model = (req.headers['x-model-id'] as string) || (req.query.model as string);
+    // 6. Call our AI service with STRUCTURED data using the resolved model
     const digest = await summarizeEmailBatch(emailData, model);
 
     logger.info(`Successfully generated digest for ${emailData.length} emails`);
@@ -273,10 +282,17 @@ export const getDailyDigest = async (req: AuthenticatedRequest, res: Response) =
       throw new Error('AI service returned invalid JSON');
     }
 
+    digestInFlight.delete(userId);
     res.status(200).json({ summary: digest });
 
   } catch (error: any) {
+    digestInFlight.delete(userId);
     logger.error('Error in getDailyDigest controller:', error);
+    if (error?.code === 'TOKEN_DECRYPTION_FAILED') {
+      return res.status(401).json({
+        error: error.message || 'Stored Google credentials could not be decrypted. Please reconnect your account.',
+      });
+    }
     if (error.code === 401) { // Handle Google Auth errors specifically
       return res.status(401).json({ error: 'Google authentication failed. Please reconnect your account.' });
     }
