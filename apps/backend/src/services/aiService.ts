@@ -122,12 +122,20 @@ export const summarizeEmailBatch = async (emailData: EmailInput[], model?: strin
  * Process a single batch of emails (up to BATCH_SIZE)
  * Includes validation to ensure all emails are summarized
  */
-async function processBatch(emails: EmailInput[], model?: string): Promise<DigestItem[]> {
+async function processBatch(emails: EmailInput[], model?: string, retryCount = 0): Promise<DigestItem[]> {
   const emailIds = emails.map(e => e.id);
 
-  const formattedInput = emails.map(e =>
-    `EMAIL_ID: ${e.id}\nCATEGORY: ${e.category}\n${e.content}`
-  ).join('\n---\n');
+  // Truncate email body to prevent output truncation on small LLMs
+  const maxBodyLength = retryCount > 0 ? 200 : 500;
+
+  const formattedInput = emails.map(e => {
+    // Extract just the essential parts and truncate the body
+    const lines = e.content.split('\n');
+    const headerLines = lines.filter(l => /^(From|Subject|Category):/i.test(l));
+    const bodyLine = lines.find(l => /^Body:/i.test(l));
+    const body = bodyLine ? bodyLine.substring(0, maxBodyLength) : lines.slice(headerLines.length).join('\n').substring(0, maxBodyLength);
+    return `EMAIL_ID: ${e.id}\nCATEGORY: ${e.category}\n${headerLines.join('\n')}\nBody: ${body}`;
+  }).join('\n---\n');
 
   const prompt = `Summarize these ${emails.length} emails. Return ONLY a JSON array.
 
@@ -200,6 +208,28 @@ CRITICAL RULES:
     return items;
   } catch (e) {
     logger.error("[AI Service] Failed to parse JSON:", arrayMatch[0].substring(0, 500));
+
+    // Try to repair truncated JSON array by closing it
+    try {
+      let repaired = arrayMatch[0];
+      // Find last complete object (ending with })
+      const lastCloseBrace = repaired.lastIndexOf('}');
+      if (lastCloseBrace > 0) {
+        repaired = repaired.substring(0, lastCloseBrace + 1) + ']';
+        const repairedItems = JSON.parse(repaired) as DigestItem[];
+        logger.info(`[AI Service] Repaired truncated JSON: recovered ${repairedItems.length} items`);
+        return repairedItems;
+      }
+    } catch (repairError) {
+      logger.warn('[AI Service] JSON repair also failed');
+    }
+
+    // Retry once with shorter content
+    if (retryCount === 0) {
+      logger.info('[AI Service] Retrying batch with truncated content...');
+      return processBatch(emails, model, 1);
+    }
+
     throw new Error("Failed to parse response");
   }
 }

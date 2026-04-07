@@ -17,6 +17,21 @@ export class OpenRouterService {
         const selectedModel = model || this.defaultModel;
         logger.info(`[OpenRouter] Sending request to model: ${selectedModel}`);
 
+        const isOllama = selectedModel && selectedModel.startsWith('ollama:');
+        const apiUrl = isOllama
+            ? `${process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434'}/v1/chat/completions`
+            : "https://openrouter.ai/api/v1/chat/completions";
+
+        const actualModelId = isOllama && selectedModel ? selectedModel.replace('ollama:', '') : selectedModel;
+
+        const headers: any = isOllama
+            ? { "Content-Type": "application/json" }
+            : {
+                "Authorization": `Bearer ${this.apiKey}`,
+                "HTTP-Referer": "http://localhost:3000",
+                "X-Title": "Mavinmail Email Assistant"
+            };
+
         const maxRetries = 3;
         let retryCount = 0;
         let lastError: any = null;
@@ -24,9 +39,9 @@ export class OpenRouterService {
         while (retryCount < maxRetries) {
             try {
                 const response = await axios.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
+                    apiUrl,
                     {
-                        model: selectedModel,
+                        model: actualModelId,
                         messages: [
                             {
                                 role: "user",
@@ -35,11 +50,7 @@ export class OpenRouterService {
                         ],
                     },
                     {
-                        headers: {
-                            "Authorization": `Bearer ${this.apiKey}`,
-                            "HTTP-Referer": "http://localhost:3000",
-                            "X-Title": "Mavinmail Email Assistant"
-                        },
+                        headers: headers,
                         timeout: 120000 // 120 second timeout for reasoning models
                     }
                 );
@@ -171,20 +182,31 @@ export class OpenRouterService {
         const selectedModel = model || this.defaultModel;
         logger.info(`[OpenRouter] Starting stream to model: ${selectedModel}`);
 
+        const isOllama = selectedModel && selectedModel.startsWith('ollama:');
+        const apiUrl = isOllama
+            ? `${process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434'}/v1/chat/completions`
+            : "https://openrouter.ai/api/v1/chat/completions";
+
+        const actualModelId = isOllama && selectedModel ? selectedModel.replace('ollama:', '') : selectedModel;
+
+        const headers: any = isOllama
+            ? { "Content-Type": "application/json" }
+            : {
+                "Authorization": `Bearer ${this.apiKey}`,
+                "HTTP-Referer": "http://localhost:3000",
+                "X-Title": "Mavinmail Email Assistant"
+            };
+
         try {
             const response = await axios.post(
-                "https://openrouter.ai/api/v1/chat/completions",
+                apiUrl,
                 {
-                    model: selectedModel,
+                    model: actualModelId,
                     messages: [{ role: "user", content: prompt }],
                     stream: true,  // Enable streaming
                 },
                 {
-                    headers: {
-                        "Authorization": `Bearer ${this.apiKey}`,
-                        "HTTP-Referer": "http://localhost:3000",
-                        "X-Title": "Mavinmail Email Assistant"
-                    },
+                    headers: headers,
                     responseType: 'stream',
                     timeout: 120000
                 }
