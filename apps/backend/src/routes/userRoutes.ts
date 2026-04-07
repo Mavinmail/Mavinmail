@@ -6,11 +6,14 @@ import {
     updatePreferences,
     getProfile,
     updateProfile,
+    changePassword,
     getCredits,
     getGoogleCredentials,
     updateGoogleCredentials
 } from '../controllers/userController.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { validate } from '../middleware/validate.js';
+import { changePasswordSchema, updateProfileSchema } from '../schemas/index.js';
 
 const router = Router();
 
@@ -51,7 +54,10 @@ router.put('/preferences', updatePreferences);
 router.get('/profile', getProfile);
 
 // PUT /api/user/profile - Update user profile (secure email change)
-router.put('/profile', updateProfile);
+router.put('/profile', validate(updateProfileSchema), updateProfile);
+
+// PUT /api/user/password - Change account password
+router.put('/password', validate(changePasswordSchema), changePassword);
 
 // ====================================================================
 // =====&gt; Routes for Credit System &lt;=====

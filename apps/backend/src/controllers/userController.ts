@@ -205,9 +205,9 @@ export const updateProfile = async (req: AuthenticatedRequest, res: Response) =>
       // Verify the password
       const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
       if (!isPasswordValid) {
-        return res.status(401).json({
-          error: 'Invalid password',
-          code: 'INVALID_PASSWORD'
+        return res.status(400).json({
+          error: 'Current password is incorrect',
+          code: 'INVALID_PASSWORD',
         });
       }
 
@@ -249,6 +249,62 @@ export const updateProfile = async (req: AuthenticatedRequest, res: Response) =>
   } catch (error) {
     logger.error('Error updating profile:', error);
     res.status(500).json({ error: 'Failed to update profile' });
+  }
+};
+
+/**
+ * PUT /api/user/password
+ * Changes the authenticated user's password after verifying the current password.
+ */
+export const changePassword = async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user!.userId;
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: Number(userId) },
+      select: {
+        email: true,
+        password: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found', code: 'USER_NOT_FOUND' });
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        error: 'Current password is incorrect',
+        code: 'INVALID_CURRENT_PASSWORD',
+      });
+    }
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+    if (isSamePassword) {
+      return res.status(400).json({
+        error: 'New password must be different from your current password',
+        code: 'PASSWORD_UNCHANGED',
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    await prisma.user.update({
+      where: { id: Number(userId) },
+      data: { password: hashedPassword },
+    });
+
+    logger.info(`🔐 Password updated for user ${userId} (${user.email})`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password updated successfully',
+    });
+  } catch (error) {
+    logger.error('Error changing password:', error);
+    res.status(500).json({ error: 'Failed to update password', code: 'PASSWORD_UPDATE_FAILED' });
   }
 };
 

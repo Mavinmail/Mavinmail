@@ -1,5 +1,15 @@
 import { z } from 'zod';
 
+const actionTypeSchema = z.enum([
+    'summarize',
+    'draft',
+    'enhance',
+    'rag_query',
+    'digest',
+    'thread_summary',
+    'autocomplete',
+]);
+
 // ─── Auth Schemas ────────────────────────────────────
 
 export const signupSchema = z.object({
@@ -50,6 +60,18 @@ export const updateProfileSchema = z.object({
     currentPassword: z.string().optional(),
 });
 
+const strongPasswordSchema = z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password must be 128 characters or fewer')
+    .regex(/[a-z]/, 'Password must include a lowercase letter')
+    .regex(/[A-Z]/, 'Password must include an uppercase letter')
+    .regex(/[0-9]/, 'Password must include a number');
+
+export const changePasswordSchema = z.object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: strongPasswordSchema,
+});
+
 // ─── Support Schemas ─────────────────────────────────
 
 export const createTicketSchema = z.object({
@@ -90,6 +112,12 @@ export const createTaskSchema = z.object({
     frequency: z.string().min(1),
     time: z.string().optional(),
     config: z.record(z.string(), z.unknown()).optional(),
+});
+
+export const logUsageSchema = z.object({
+    action: actionTypeSchema,
+    metadata: z.record(z.string(), z.unknown()).optional(),
+    success: z.boolean().optional(),
 });
 
 // ─── Common Param Schemas ────────────────────────────
