@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../utils/prisma.js';
 import { z } from 'zod';
 import logger from '../utils/logger.js';
+import axios from 'axios';
 
 // ============================================================================
 // ZOD VALIDATION SCHEMAS - Type-safe request validation
@@ -277,5 +278,40 @@ export const setDefaultModel = async (req: Request, res: Response) => {
     } catch (error) {
         logger.error('Error setting default model:', error);
         res.status(500).json({ error: 'Failed to set default model' });
+    }
+};
+
+/**
+ * GET /api/admin/models/ollama
+ * Connects to a local Ollama instance and fetches available downloaded models.
+ */
+export const getOllamaModels = async (_req: Request, res: Response) => {
+    try {
+        const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
+        
+        // Fetch models from local Ollama instance
+        const response = await axios.get(`${ollamaBaseUrl}/api/tags`, {
+            timeout: 5000 // Quick timeout if Ollama isn't running
+        });
+
+        if (!response.data || !response.data.models) {
+            return res.status(200).json({ models: [] });
+        }
+
+        // Map Ollama responses to our platform's AIModel schema
+        const models = response.data.models.map((model: any) => ({
+            id: `ollama_${model.name}`, // Fake ID for React keys
+            modelId: `ollama:${model.name}`, // Prefix with ollama: so our interceptor catches it
+            displayName: `Local Ollama: ${model.name}`,
+            description: `Size: ${(model.size / 1024 / 1024 / 1024).toFixed(1)} GB | Family: ${model.details?.family || 'Unknown'}`,
+            isActive: true,
+            isDefault: false,
+        }));
+
+        res.status(200).json({ models });
+    } catch (error: any) {
+        logger.warn(`Failed to connect to Local Ollama. Is it running? Error: ${error.message}`);
+        // Return elegant empty array so dashboard doesn't crash if Ollama is off
+        res.status(200).json({ models: [] });
     }
 };
