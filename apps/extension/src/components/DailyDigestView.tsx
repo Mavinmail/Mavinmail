@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // -----------------------------
 // Digest Types
@@ -42,7 +42,18 @@ export default function DailyDigestView({ onClose, selectedDate, onDigestComplet
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Use a ref for the callback to avoid re-triggering the effect
+  const onDigestCompleteRef = useRef(onDigestComplete);
+  onDigestCompleteRef.current = onDigestComplete;
+
+  // Guard against duplicate requests
+  const hasFetchedRef = useRef(false);
+
   useEffect(() => {
+    // Prevent duplicate requests from React strict mode or re-renders
+    if (hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
+
     // Reset states when starting a new request
     setIsLoading(true);
     setError("");
@@ -95,9 +106,9 @@ export default function DailyDigestView({ onClose, selectedDate, onDigestComplet
 
         setDigest(parsed);
 
-        // Call completion callback to save to history
-        if (onDigestComplete) {
-          onDigestComplete(parsed);
+        // Call completion callback via ref (never triggers re-render loop)
+        if (onDigestCompleteRef.current) {
+          onDigestCompleteRef.current(parsed);
         }
       } catch (error: any) {
         console.error('Error parsing digest:', error);
@@ -105,7 +116,7 @@ export default function DailyDigestView({ onClose, selectedDate, onDigestComplet
         setDigest(null);
       }
     });
-  }, [selectedDate, onDigestComplete]);
+  }, [selectedDate]); // Only re-fetch when date changes, NOT on callback changes
 
   return (
     <div className="relative p-3 bg-[#171717] border border-[#262626] rounded-xl text-white mb-3 shadow-lg max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">

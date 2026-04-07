@@ -1,7 +1,17 @@
 // background.ts
+import {
+  draftReplyWithLocalModel,
+  getLocalModelAccessError,
+  isLocalModel,
+  summarizeWithLocalModel,
+} from './services/localLlm.js';
+import { trackUsageEvent } from './services/api.js';
+
 chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch(err => console.error(err));
+
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace(/\/$/, '');
 
 chrome.runtime.onMessage.addListener((request, sender) => {
   if (request.action === "openSidePanel" && sender.tab?.id) {
@@ -109,59 +119,98 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 
 // Helper functions to keep listener clean
-function handleSummarize(emailText: string) {
-  chrome.storage.local.get(['token', 'selectedModel'], (result) => {
-    if (!result.token) return; // Silent fail or send error
+async function handleSummarize(emailText: string) {
+  try {
+    const result = await chrome.storage.local.get(['token', 'selectedModel']);
+    const token = typeof result.token === 'string' ? result.token : null;
+    const selectedModel = typeof result.selectedModel === 'string' ? result.selectedModel : null;
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${result.token}`,
-    };
-    if (result.selectedModel) headers['x-model-id'] = result.selectedModel as string;
+    if (!token) {
+      chrome.runtime.sendMessage({ type: 'SUMMARY_ERROR', payload: 'Not authenticated.' });
+      return;
+    }
 
-    fetch('http://localhost:5001/api/ai/summarize', {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify({ text: emailText }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        chrome.runtime.sendMessage({ type: 'SUMMARY_RESULT', payload: data.summary });
-      })
-      .catch(err => {
-        chrome.runtime.sendMessage({ type: 'SUMMARY_ERROR', payload: err.message });
-      });
-  });
-}
+    if (isLocalModel(selectedModel)) {
+      const accessError = getLocalModelAccessError(token, selectedModel);
+      if (accessError) {
+        chrome.runtime.sendMessage({ type: 'SUMMARY_ERROR', payload: accessError });
+        return;
+      }
 
-function handleDraftReply(emailText: string, prompt: string) {
-  chrome.storage.local.get(['token', 'selectedModel'], (result) => {
-    if (!result.token) {
-      chrome.runtime.sendMessage({ type: 'DRAFT_ERROR', payload: 'Not authenticated.' });
+      const summary = await summarizeWithLocalModel(emailText, selectedModel);
+      await trackUsageEvent('summarize', { model: selectedModel, local: true });
+      chrome.runtime.sendMessage({ type: 'SUMMARY_RESULT', payload: summary });
       return;
     }
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${result.token}`,
+      Authorization: `Bearer ${token}`,
     };
-    if (result.selectedModel) headers['x-model-id'] = result.selectedModel as string;
+    if (selectedModel) headers['x-model-id'] = selectedModel;
 
-    fetch('http://localhost:5001/api/ai/draft-reply', {
+    const response = await fetch(`${API_URL}/ai/summarize`, {
       method: 'POST',
-      headers: headers,
+      headers,
+      body: JSON.stringify({ text: emailText }),
+    });
+
+    const data = await response.json();
+    if (data.error) {
+      throw new Error(data.error);
+    }
+
+    chrome.runtime.sendMessage({ type: 'SUMMARY_RESULT', payload: data.summary });
+  } catch (error: any) {
+    chrome.runtime.sendMessage({ type: 'SUMMARY_ERROR', payload: error.message || 'Failed to summarize email.' });
+  }
+}
+
+async function handleDraftReply(emailText: string, prompt: string) {
+  try {
+    const result = await chrome.storage.local.get(['token', 'selectedModel']);
+    const token = typeof result.token === 'string' ? result.token : null;
+    const selectedModel = typeof result.selectedModel === 'string' ? result.selectedModel : null;
+
+    if (!token) {
+      chrome.runtime.sendMessage({ type: 'DRAFT_ERROR', payload: 'Not authenticated.' });
+      return;
+    }
+
+    if (isLocalModel(selectedModel)) {
+      const accessError = getLocalModelAccessError(token, selectedModel);
+      if (accessError) {
+        chrome.runtime.sendMessage({ type: 'DRAFT_ERROR', payload: accessError });
+        return;
+      }
+
+      const reply = await draftReplyWithLocalModel(emailText, prompt, selectedModel);
+      await trackUsageEvent('draft', { model: selectedModel, local: true });
+      chrome.runtime.sendMessage({ type: 'DRAFT_RESULT', payload: reply });
+      return;
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    };
+    if (selectedModel) headers['x-model-id'] = selectedModel;
+
+    const response = await fetch(`${API_URL}/ai/draft-reply`, {
+      method: 'POST',
+      headers,
       body: JSON.stringify({ emailContent: emailText, userPrompt: prompt }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        chrome.runtime.sendMessage({ type: 'DRAFT_RESULT', payload: data.reply });
-      })
-      .catch(err => {
-        chrome.runtime.sendMessage({ type: 'DRAFT_ERROR', payload: err.message });
-      });
-  });
+    });
+
+    const data = await response.json();
+    if (data.error) {
+      throw new Error(data.error);
+    }
+
+    chrome.runtime.sendMessage({ type: 'DRAFT_RESULT', payload: data.reply });
+  } catch (error: any) {
+    chrome.runtime.sendMessage({ type: 'DRAFT_ERROR', payload: error.message || 'Failed to generate draft reply.' });
+  }
 }
 
 function handleDailyDigest(date: any, sendResponse: (response: any) => void) {
@@ -171,7 +220,7 @@ function handleDailyDigest(date: any, sendResponse: (response: any) => void) {
       return;
     }
 
-    let url = 'http://localhost:5001/api/gmail/daily-digest';
+    let url = `${API_URL}/gmail/daily-digest`;
     if (date) {
       const dateStr = date instanceof Date ? date.toISOString().split('T')[0] : date;
       url += `?date=${dateStr}`;
@@ -193,6 +242,3 @@ function handleDailyDigest(date: any, sendResponse: (response: any) => void) {
       });
   });
 }
-
-
-
