@@ -3,6 +3,7 @@ import { Redis } from 'ioredis';
 import prisma from '../utils/prisma.js';
 import { getLatestEmails } from './emailService.js';
 import { summarizeEmailBatch } from './aiService.js';
+import { resolveUserModel } from '../utils/modelHelper.js';
 import logger from '../utils/logger.js';
 
 // --- Redis Connection Setup ---
@@ -119,7 +120,8 @@ async function handleMorningBriefing(userId: number) {
         let summaryJsonStr: string | null = null;
 
         try {
-            summaryJsonStr = await summarizeEmailBatch(emailInputs);
+            const model = await resolveUserModel(userId);
+            summaryJsonStr = await summarizeEmailBatch(emailInputs, model);
         } catch (aiError: any) {
             logger.error(`[MorningBriefing] AI summarization failed:`, aiError.message);
         }

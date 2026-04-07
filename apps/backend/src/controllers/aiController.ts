@@ -131,7 +131,7 @@ Question: ${question}
     logger.info('🔍 RAG Enabled. Processing query with enhanced pipeline...');
 
     // 1️⃣ CLASSIFY QUERY - Determine intent and extract entities
-    const classification = await classifyQuery(question);
+    const classification = await classifyQuery(question, model);
     logger.info(`📊 Query Classification: ${classification.intent} (confidence: ${classification.confidence})`);
 
     // 2️⃣ RETRIEVE - Use appropriate retrieval strategy
@@ -299,7 +299,7 @@ export const askQuestionStream = async (req: Request, res: Response) => {
 
     if (useRag) {
       // Classify and retrieve
-      classification = await classifyQuery(question);
+      classification = await classifyQuery(question, model);
       res.write(`data: ${JSON.stringify({ type: 'status', message: `Searching emails (${classification.intent})...` })}\n\n`);
 
       const retrievalResult = await executeRetrieval(String(userId), question, classification);
