@@ -29,17 +29,18 @@ interface DigestData {
 // Component Props
 // -----------------------------
 interface DailyDigestViewProps {
-  onClose: () => void;
+  onClose?: () => void;
   selectedDate?: string; // Optional date in YYYY-MM-DD format
   onDigestComplete?: (digestData: DigestData) => void; // Callback when digest is loaded
+  data?: any; // To render already fetched digest from history
 }
 
 // -----------------------------
 // Component
 // -----------------------------
-export default function DailyDigestView({ onClose, selectedDate, onDigestComplete }: DailyDigestViewProps) {
-  const [digest, setDigest] = useState<DigestData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export default function DailyDigestView({ onClose, selectedDate, onDigestComplete, data }: DailyDigestViewProps) {
+  const [digest, setDigest] = useState<DigestData | null>(data || null);
+  const [isLoading, setIsLoading] = useState(!data);
   const [error, setError] = useState("");
 
   // Use a ref for the callback to avoid re-triggering the effect
@@ -50,6 +51,13 @@ export default function DailyDigestView({ onClose, selectedDate, onDigestComplet
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
+    // If data is pre-provided, do not fetch
+    if (data) {
+      setDigest(data);
+      setIsLoading(false);
+      return;
+    }
+
     // Prevent duplicate requests from React strict mode or re-renders
     if (hasFetchedRef.current) return;
     hasFetchedRef.current = true;
@@ -121,14 +129,16 @@ export default function DailyDigestView({ onClose, selectedDate, onDigestComplet
   return (
     <div className="relative p-3 bg-[#171717] border border-[#262626] rounded-xl text-white mb-3 shadow-lg max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
       {/* Close Button */}
-      <button
-        onClick={onClose}
-        className="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
 
       <h3 className="font-bold text-[#22d3ee] mb-3 text-sm flex items-center gap-2">
         <span className="w-1.5 h-1.5 bg-[#22d3ee] rounded-full"></span>

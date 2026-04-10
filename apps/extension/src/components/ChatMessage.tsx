@@ -1,4 +1,5 @@
 import SummaryResultView from './SummaryResultView';
+import DailyDigestView from './DailyDigestView';
 
 // This defines what a 'message' object looks like
 export interface Message {
@@ -63,23 +64,38 @@ const formatInlineStyles = (text: string) => {
   });
 };
 
-export const ChatMessage = ({ message }: { message: Message }) => {
+export const ChatMessage = ({ message, onRemove }: { message: Message; onRemove?: () => void }) => {
   const isUser = message.sender === 'user';
+
+  if (message.type === 'digest') {
+    return (
+      <div className={`flex w-full items-start`}>
+        <div className="w-full">
+          {message.isLoading ? (
+            <div className="bg-[#1a1a1a] text-gray-400 p-4 rounded-2xl border border-white/5 text-sm animate-pulse shadow-sm">
+              Generating digest...
+            </div>
+          ) : (
+            <DailyDigestView data={message.data} onClose={onRemove} />
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (message.type === 'summary') {
     return (
-      <div className={`flex w-full items-start gap-2 sm:gap-2.5 lg:gap-3`}>
-        <img src="/logo.png" alt="Meeco Avatar" className="w-5 h-5 sm:w-6 sm:h-6 lg:w-6 lg:h-6 xl:w-7 xl:h-7 rounded-full flex-shrink-0" />
-        <div className="w-full max-w-[95%]">
+      <div className={`flex w-full items-start`}>
+        <div className="w-full">
           {message.isLoading ? (
-            <div className="bg-[#171717] text-gray-400 p-3 rounded-xl border border-[#262626] text-sm animate-pulse">
+            <div className="bg-[#1a1a1a] text-gray-400 p-4 rounded-2xl border border-white/5 text-sm animate-pulse shadow-sm">
               Summarizing email...
             </div>
           ) : (
             <SummaryResultView
               summary={message.data}
               error={message.error}
-            // onClear logic is removed or handled via removing message if needed, but for history we keep it.
+              onClear={onRemove}
             />
           )}
         </div>
@@ -89,15 +105,18 @@ export const ChatMessage = ({ message }: { message: Message }) => {
 
   // Fallback for regular text messages
   return (
-    <div className={`flex w-full items-start gap-2.5 sm:gap-3 lg:gap-3 ${isUser ? 'justify-end' : ''}`}>
-      {!isUser && (
-        <img src="/logo.png" alt="Meeco Avatar" className="w-6 h-6 sm:w-7 sm:h-7 lg:w-7 lg:h-7 rounded-full flex-shrink-0" />
-      )}
-      <div className={`max-w-[85%] rounded-lg px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm lg:text-base ${isUser ? 'bg-[#22d3ee] text-[#121212] font-medium' : 'bg-[#171717] text-gray-200'}`}>
+    <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'}`}>
+      <div 
+        className={`max-w-[85%] px-4 py-2.5 text-sm lg:text-base shadow-sm ${
+          isUser 
+            ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-white font-medium rounded-2xl rounded-tr-sm' 
+            : 'bg-[#1a1a1a] text-gray-200 border border-white/5 rounded-2xl rounded-tl-sm'
+        }`}
+      >
         {isUser ? (
           <p className="whitespace-pre-wrap break-words">{message.text}</p>
         ) : (
-          <div className="whitespace-pre-wrap break-words">
+          <div className="whitespace-pre-wrap break-words leading-relaxed">
             {formatAIResponse(message.text)}
           </div>
         )}

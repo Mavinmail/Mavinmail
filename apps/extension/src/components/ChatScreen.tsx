@@ -595,7 +595,11 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
         </div>
 
         {messages.map((msg) => (
-          <ChatMessage key={msg.id} message={msg} />
+          <ChatMessage 
+            key={msg.id} 
+            message={msg} 
+            onRemove={() => setMessages(prev => prev.filter(m => m.id !== msg.id))}
+          />
         ))}
 
         {/* Active view (digest, summary) rendered AFTER messages for proper order */}
