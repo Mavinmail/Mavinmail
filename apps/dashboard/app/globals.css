@@ -46,39 +46,37 @@
 
 /* =========================================================
    MIDDAY-INSPIRED DESIGN SYSTEM
-   Dark-only. Flat. No glassmorphism. Solid fills.
-   Accent: #24D3EE (cyan). Background: #0C0C0C.
+   Accent: #24D3EE (cyan). 
    ========================================================= */
 
 :root {
   --radius: 0.5rem;
 
-  /* Default to dark values so there is never a white flash */
-  --background: #0C0C0C;
-  --foreground: #fafafa;
+  --background: #f9fafb;
+  --foreground: #09090b;
 
-  --card: #111111;
-  --card-foreground: #fafafa;
-  --popover: #111111;
-  --popover-foreground: #fafafa;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --popover: #ffffff;
+  --popover-foreground: #09090b;
 
   --primary: #24D3EE;
   --primary-foreground: #0C0C0C;
 
-  --secondary: #1a1a1a;
-  --secondary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
 
-  --muted: #1a1a1a;
+  --muted: #f4f4f5;
   --muted-foreground: #71717a;
 
-  --accent: #161616;
-  --accent-foreground: #fafafa;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
 
-  --destructive: #dc2626;
+  --destructive: #ef4444;
   --destructive-foreground: #fafafa;
 
-  --border: rgba(255, 255, 255, 0.06);
-  --input: rgba(255, 255, 255, 0.06);
+  --border: #d4d4d8;
+  --input: #d4d4d8;
   --ring: #24D3EE;
 
   --chart-1: #24D3EE;
@@ -87,13 +85,13 @@
   --chart-4: #fb923c;
   --chart-5: #f472b6;
 
-  --sidebar: #0C0C0C;
-  --sidebar-foreground: #a1a1aa;
+  --sidebar: #fcfcfc;
+  --sidebar-foreground: #18181b;
   --sidebar-primary: #24D3EE;
   --sidebar-primary-foreground: #0C0C0C;
-  --sidebar-accent: #161616;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #d4d4d8;
   --sidebar-ring: #24D3EE;
 }
 
