@@ -20,6 +20,7 @@ import {
 import Link from "next/link"
 import Image from "next/image"
 import mavinlogo from "@/public/mavinlogo.png"
+import mavinlogodark from "@/public/mavin-logo-dark.png"
 
 interface NavItem {
     name: string
@@ -51,16 +52,17 @@ export function Sidebar({ className, activeView, onViewChange, isCollapsed, togg
 
     return (
         <div className={cn(
-            "relative flex flex-col h-screen border-r border-white/[0.06] bg-[#0C0C0C] transition-all duration-300",
+            "relative flex flex-col h-screen border-r border-border bg-sidebar transition-all duration-300",
             isCollapsed ? "w-16" : "w-60",
             className
         )}>
             {/* Logo */}
-            <div className="flex items-center h-16 px-4 border-b border-white/[0.06]">
+            <div className="flex items-center h-16 px-4 border-b border-border">
                 <Link href="/dashboard" className="flex items-center gap-2.5">
-                    <Image src={mavinlogo} alt="MavinMail" className="w-7 h-7 rounded-md flex-shrink-0" width={28} height={28} />
+                    <Image src={mavinlogo} alt="MavinMail" className="w-7 h-7 rounded-md flex-shrink-0 hidden dark:block" width={28} height={28} />
+                    <Image src={mavinlogodark} alt="MavinMail" className="h-7 w-auto object-contain flex-shrink-0 block dark:hidden" width={120} height={28} />
                     {!isCollapsed && (
-                        <span className="text-[14px] font-semibold text-white tracking-[-0.02em]">
+                        <span className="text-[14px] font-semibold text-sidebar-foreground tracking-[-0.02em]">
                             MavinMail
                         </span>
                     )}
@@ -76,15 +78,15 @@ export function Sidebar({ className, activeView, onViewChange, isCollapsed, togg
                             className={cn(
                                 "flex items-center gap-3 h-9 px-3 rounded-md text-[13px] font-medium transition-colors w-full text-left",
                                 activeView === item.view
-                                    ? "bg-[#161616] text-white"
-                                    : "text-zinc-500 hover:text-zinc-300 hover:bg-[#111111]",
+                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                    : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50",
                                 isCollapsed && "justify-center px-0"
                             )}
                             onClick={() => onViewChange(item.view)}
                         >
                             {(item.icon as any) && <item.icon className={cn(
                                 "h-4 w-4 flex-shrink-0",
-                                activeView === item.view ? "text-[#24D3EE]" : "text-zinc-600"
+                                activeView === item.view ? "text-primary" : "text-muted-foreground"
                             )} />}
                             {!isCollapsed && <span>{item.name}</span>}
                         </button>
@@ -93,9 +95,9 @@ export function Sidebar({ className, activeView, onViewChange, isCollapsed, togg
             </div>
 
             {/* Collapse toggle */}
-            <div className="p-3 border-t border-white/[0.06]">
+            <div className="p-3 border-t border-border">
                 <button
-                    className="w-full flex items-center justify-center h-8 rounded-md text-zinc-600 hover:text-zinc-400 hover:bg-[#111111] transition-colors"
+                    className="w-full flex items-center justify-center h-8 rounded-md text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
                     onClick={toggleCollapse}
                 >
                     {isCollapsed
@@ -118,7 +120,7 @@ export function MobileSidebar({ activeView, onViewChange, navItems }: { activeVi
                     {React.createElement(Menu as any, { className: "h-5 w-5" })}
                 </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 bg-[#0C0C0C] border-white/[0.06] w-60 text-white">
+            <SheetContent side="left" className="p-0 bg-sidebar border-border w-60 text-sidebar-foreground">
                 <SheetHeader className="sr-only">
                     <SheetTitle>Navigation Menu</SheetTitle>
                 </SheetHeader>

@@ -73,12 +73,12 @@ const METRIC_CARDS: MetricCardData[] = [
 
 function SkeletonCard() {
     return (
-        <div className="bg-[#111111] border border-white/[0.06] rounded-lg p-5 animate-pulse">
+        <div className="bg-card dark:bg-[#111111] border border-border dark:border-white/[0.06] rounded-lg p-5 animate-pulse">
             <div className="flex items-center justify-between mb-4">
-                <div className="h-3 w-20 bg-[#1a1a1a] rounded" />
-                <div className="h-4 w-4 bg-[#1a1a1a] rounded" />
+                <div className="h-3 w-20 bg-muted dark:bg-[#1a1a1a] rounded" />
+                <div className="h-4 w-4 bg-muted dark:bg-[#1a1a1a] rounded" />
             </div>
-            <div className="h-7 w-14 bg-[#1a1a1a] rounded" />
+            <div className="h-7 w-14 bg-muted dark:bg-[#1a1a1a] rounded" />
         </div>
     );
 }
@@ -100,14 +100,14 @@ function MetricCard({
     }
 
     return (
-        <div className="bg-[#111111] border border-white/[0.06] rounded-lg p-5 hover:border-white/[0.1] transition-colors group">
+        <div className="bg-card dark:bg-[#111111] border border-border dark:border-white/[0.06] rounded-lg p-5 hover:border-muted-foreground dark:hover:border-white/[0.1] transition-colors group">
             <div className="flex items-center justify-between mb-4">
-                <p className="text-[12px] font-medium text-zinc-500 tracking-wide">
+                <p className="text-[12px] font-medium text-muted-foreground dark:text-zinc-500 tracking-wide">
                     {metric.title}
                 </p>
-                <Icon className="h-4 w-4 text-zinc-600 group-hover:text-[#24D3EE] transition-colors" />
+                <Icon className="h-4 w-4 text-muted-foreground dark:text-zinc-600 group-hover:text-primary dark:group-hover:text-[#24D3EE] transition-colors" />
             </div>
-            <p className="text-[24px] font-bold text-white tracking-[-0.02em]">
+            <p className="text-[24px] font-bold text-foreground dark:text-white tracking-[-0.02em]">
                 {displayValue}
             </p>
         </div>

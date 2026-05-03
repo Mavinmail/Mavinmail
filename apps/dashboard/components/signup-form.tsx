@@ -72,7 +72,7 @@ export function SignupForm({
             <form onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-5">
                     <div className="grid gap-2">
-                        <Label htmlFor="email" className="text-[13px] text-zinc-400">Email</Label>
+                        <Label htmlFor="email" className="text-[13px] text-muted-foreground dark:text-zinc-400">Email</Label>
                         <Input
                             id="email"
                             type="email"
@@ -80,46 +80,46 @@ export function SignupForm({
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="h-10 bg-[#161616] border-white/[0.06] text-white placeholder:text-zinc-600 rounded-md focus-visible:ring-[#24D3EE]/30 focus-visible:border-[#24D3EE]/50"
+                            className="h-10 bg-muted dark:bg-[#161616] border-border dark:border-white/[0.06] text-foreground dark:text-white placeholder:text-muted-foreground dark:text-zinc-600 rounded-md focus-visible:ring-[#24D3EE]/30 focus-visible:border-[#24D3EE]/50"
                         />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="password" className="text-[13px] text-zinc-400">Password</Label>
+                        <Label htmlFor="password" className="text-[13px] text-muted-foreground dark:text-zinc-400">Password</Label>
                         <Input
                             id="password"
                             type="password"
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="h-10 bg-[#161616] border-white/[0.06] text-white placeholder:text-zinc-600 rounded-md focus-visible:ring-[#24D3EE]/30 focus-visible:border-[#24D3EE]/50"
+                            className="h-10 bg-muted dark:bg-[#161616] border-border dark:border-white/[0.06] text-foreground dark:text-white placeholder:text-muted-foreground dark:text-zinc-600 rounded-md focus-visible:ring-[#24D3EE]/30 focus-visible:border-[#24D3EE]/50"
                         />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="confirmPassword" className="text-[13px] text-zinc-400">Confirm Password</Label>
+                        <Label htmlFor="confirmPassword" className="text-[13px] text-muted-foreground dark:text-zinc-400">Confirm Password</Label>
                         <Input
                             id="confirmPassword"
                             type="password"
                             required
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="h-10 bg-[#161616] border-white/[0.06] text-white placeholder:text-zinc-600 rounded-md focus-visible:ring-[#24D3EE]/30 focus-visible:border-[#24D3EE]/50"
+                            className="h-10 bg-muted dark:bg-[#161616] border-border dark:border-white/[0.06] text-foreground dark:text-white placeholder:text-muted-foreground dark:text-zinc-600 rounded-md focus-visible:ring-[#24D3EE]/30 focus-visible:border-[#24D3EE]/50"
                         />
                     </div>
                     {error && <p className="text-red-400 text-[13px]">{error}</p>}
-                    <Button type="submit" className="w-full h-10 bg-white text-[#0C0C0C] font-medium hover:bg-zinc-200 rounded-md mt-2">
+                    <Button type="submit" className="w-full h-10 bg-foreground dark:bg-white text-background dark:text-[#0C0C0C] font-medium hover:bg-zinc-200 rounded-md mt-2">
                         Create account
                     </Button>
                 </div>
-                <div className="mt-6 text-center text-[13px] text-zinc-500">
+                <div className="mt-6 text-center text-[13px] text-muted-foreground dark:text-zinc-500">
                     Already have an account?{" "}
-                    <a href="/login" className="text-white hover:text-[#24D3EE] transition-colors">
+                    <a href="/login" className="text-foreground dark:text-white hover:text-[#24D3EE] transition-colors">
                         Sign in
                     </a>
                 </div>
             </form>
             <div className="text-center text-[11px] text-zinc-700">
-                By continuing, you agree to our <a href="#" className="text-zinc-500 hover:text-white transition-colors">Terms</a>{" "}
-                and <a href="#" className="text-zinc-500 hover:text-white transition-colors">Privacy Policy</a>.
+                By continuing, you agree to our <a href="#" className="text-muted-foreground dark:text-zinc-500 hover:text-foreground dark:text-white transition-colors">Terms</a>{" "}
+                and <a href="#" className="text-muted-foreground dark:text-zinc-500 hover:text-foreground dark:text-white transition-colors">Privacy Policy</a>.
             </div>
         </div>
     )
