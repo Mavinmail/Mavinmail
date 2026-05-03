@@ -12,15 +12,18 @@ import SupportScreen from './components/SupportScreen';
 import OnboardingScreen from './components/OnboardingScreen';
 import { useAuth } from './hooks/useAuth';
 
-import HistoryScreen from './components/HistoryScreen';
 import { useChatHistory } from './hooks/useChatHistory';
 import { useZoom } from './hooks/useZoom';
+import { useTheme } from './hooks/useTheme';
 import { getPublicSystemStatus } from './services/api';
 import SystemBanner from './components/SystemBanner';
+
+import HistoryScreen from './components/HistoryScreen';
 
 export type Screen = 'Chat' | 'Paths' | 'History' | 'Settings' | 'Login' | 'Profile' | 'Support';
 
 function App() {
+  useTheme();
   useZoom();
   const [currentScreen, setCurrentScreen] = useState<Screen>('Chat');
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
@@ -58,7 +61,7 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-[#14161F]">
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50 dark:bg-[#14161F]">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#22d3ee]"></div>
       </div>
     );
@@ -67,7 +70,7 @@ function App() {
   // --- NEW: If not logged in, show ONLY the OnboardingScreen ---
   if (!token) {
     return (
-      <div className="flex flex-col h-screen w-full bg-[#14161F]">
+      <div className="flex flex-col h-screen w-full bg-white dark:bg-[#14161F]">
         {/* Pass status to SystemBanner if it accepts props, otherwise it fetches internally (we will update it to accept props) */}
         <SystemBanner status={systemStatus} hideMaintenance={true} />
         <div className="flex-1 overflow-auto">
@@ -81,7 +84,7 @@ function App() {
   }
 
   return (
-    <div className="relative h-screen w-full bg-[#14161F] overflow-hidden">
+    <div className="relative h-screen w-full bg-white dark:bg-[#14161F] overflow-hidden">
       <SystemBanner status={systemStatus} />
 
       <div className="flex flex-col h-full w-full">
@@ -123,7 +126,7 @@ function App() {
             >
               <HistoryScreen
                 conversations={conversations}
-                onSelectConversation={(id) => {
+                onSelectConversation={(id: string) => {
                   setActiveConversationId(id);
                   setCurrentScreen('Chat');
                 }}

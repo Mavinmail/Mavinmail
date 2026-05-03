@@ -18,8 +18,8 @@ export default function Tooltip({ content, children, position = 'top' }: Tooltip
             {children}
             {isVisible && (
                 <div className={`
-          absolute z-50 px-2 py-1 text-[10px] font-medium text-white bg-[#262626] 
-          border border-[#333] rounded shadow-lg whitespace-nowrap pointer-events-none
+          absolute z-50 px-2 py-1 text-[10px] font-medium text-white bg-gray-900 dark:bg-[#262626] 
+          border border-gray-700 dark:border-[#333] rounded shadow-lg whitespace-nowrap pointer-events-none
           transition-opacity duration-200
           ${position === 'top' ? 'bottom-full left-1/2 -translate-x-1/2 mb-2' : ''}
           ${position === 'bottom' ? 'top-full left-1/2 -translate-x-1/2 mt-2' : ''}
@@ -29,7 +29,7 @@ export default function Tooltip({ content, children, position = 'top' }: Tooltip
                     {content}
                     {/* Arrow */}
                     {position === 'top' && (
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-[#262626]" />
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900 dark:border-t-[#262626]" />
                     )}
                 </div>
             )}

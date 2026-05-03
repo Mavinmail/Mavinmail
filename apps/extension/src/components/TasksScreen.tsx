@@ -107,12 +107,12 @@ function TasksScreen() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#121212] text-white p-8 overflow-y-auto w-full scrollbar-thin scrollbar-thumb-gray-800">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-white p-8 overflow-y-auto w-full scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-800">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-[#22d3ee]">Tasks & Schedules</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Manage your automated email briefings.
           </p>
         </div>
@@ -149,12 +149,12 @@ function TasksScreen() {
           </button>
         </div>
       ) : tasks.length === 0 ? (
-        <div className="flex flex-1 flex-col items-center justify-center border border-[#262626] rounded-2xl p-10 bg-[#171717]/50 backdrop-blur-sm shadow-xl">
+        <div className="flex flex-1 flex-col items-center justify-center border border-gray-300 dark:border-[#262626] rounded-2xl p-10 bg-white/50 dark:bg-[#171717]/50 backdrop-blur-sm shadow-xl">
           <div className="text-center max-w-xs">
-            <div className="w-16 h-16 bg-[#262626] rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Clock className="w-8 h-8 text-gray-500" />
+            <div className="w-16 h-16 bg-gray-100 dark:bg-[#262626] rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <Clock className="w-8 h-8 text-gray-400 dark:text-gray-500" />
             </div>
-            <h2 className="text-gray-200 text-lg font-semibold mb-2">
+            <h2 className="text-gray-900 dark:text-gray-200 text-lg font-semibold mb-2">
               No active tasks
             </h2>
             <p className="text-gray-500 text-sm mb-8 leading-relaxed">
@@ -178,18 +178,18 @@ function TasksScreen() {
               <motion.div
                 key={task.id}
                 layout
-                className="bg-[#171717] rounded-3xl p-6 border border-[#262626] shadow-lg hover:border-[#22d3ee]/30 transition-all group overflow-hidden"
+                className="bg-white dark:bg-[#171717] rounded-3xl p-6 border border-gray-300 dark:border-[#262626] shadow-lg hover:border-[#22d3ee]/30 dark:hover:border-[#22d3ee]/30 transition-all group overflow-hidden"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg mb-1 capitalize text-gray-100 flex items-center gap-3">
+                    <h3 className="font-bold text-lg mb-1 capitalize text-gray-900 dark:text-gray-100 flex items-center gap-3">
                       {task.type.replace("-", " ")}
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase font-black tracking-widest ${task.status === 'active' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-gray-800 text-gray-500 border border-gray-700'}`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase font-black tracking-widest ${task.status === 'active' ? 'bg-green-500/10 text-green-500 dark:text-green-400 border border-green-500/20' : 'bg-gray-100 dark:bg-gray-800 text-gray-500 border border-gray-300 dark:border-gray-700'}`}>
                         {task.status}
                       </span>
                     </h3>
 
-                    <div className="flex items-center gap-4 text-gray-400 text-xs mt-2">
+                    <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400 text-xs mt-2">
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-[#22d3ee]" />
                         <span>{task.time}</span>
@@ -204,7 +204,7 @@ function TasksScreen() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
-                      className="p-2 text-gray-400 hover:text-white hover:bg-[#262626] rounded-xl transition-all"
+                      className="p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-[#262626] rounded-xl transition-all"
                       title={isExpanded ? "Collapse History" : "Show History"}
                     >
                       {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -228,8 +228,8 @@ function TasksScreen() {
                       exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden"
                     >
-                      <div className="mt-6 pt-4 border-t border-[#262626]">
-                        <h4 className="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">Briefing History</h4>
+                      <div className="mt-6 pt-4 border-t border-gray-300 dark:border-[#262626]">
+                        <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">Briefing History</h4>
 
                         {taskActivities.length === 0 ? (
                           <p className="text-sm text-gray-500 italic">No briefings generated yet.</p>
@@ -239,14 +239,14 @@ function TasksScreen() {
                               <div
                                 key={activity.id}
                                 onClick={() => setSelectedBriefing(activity)}
-                                className="flex items-center justify-between p-3 rounded-xl bg-[#1e1e1e] border border-[#262626] hover:bg-[#262626] hover:border-[#22d3ee]/30 cursor-pointer group/item transition-all"
+                                className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-[#1e1e1e] border border-gray-300 dark:border-[#262626] hover:bg-gray-100 dark:hover:bg-[#262626] hover:border-[#22d3ee]/30 cursor-pointer group/item transition-all"
                               >
                                 <div className="flex items-center gap-3 overflow-hidden">
-                                  <div className="w-8 h-8 rounded-full bg-[#262626] flex items-center justify-center flex-shrink-0 text-[#22d3ee]">
+                                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-[#262626] flex items-center justify-center flex-shrink-0 text-[#22d3ee]">
                                     <FileText className="w-4 h-4" />
                                   </div>
                                   <div className="min-w-0">
-                                    <p className="text-sm font-medium text-gray-200 truncate pr-2">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate pr-2">
                                       {new Date(activity.timestamp).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                                     </p>
                                     <p className="text-[10px] text-gray-500 truncate">
@@ -293,31 +293,31 @@ function TasksScreen() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-[#121212] w-full max-w-2xl max-h-[85vh] rounded-2xl border border-[#333] shadow-2xl overflow-hidden flex flex-col"
+              className="bg-white dark:bg-[#121212] w-full max-w-2xl max-h-[85vh] rounded-2xl border border-gray-300 dark:border-[#333] shadow-2xl overflow-hidden flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-4 border-b border-[#262626] bg-[#171717]">
+              <div className="flex items-center justify-between p-4 border-b border-gray-300 dark:border-[#262626] bg-gray-50 dark:bg-[#171717]">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-[#22d3ee]/10 rounded-lg">
                     <FileText className="w-5 h-5 text-[#22d3ee]" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white">Daily Briefing</h3>
-                    <p className="text-xs text-gray-400">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Daily Briefing</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(selectedBriefing.timestamp).toLocaleString(undefined, { dateStyle: 'full', timeStyle: 'short' })}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedBriefing(null)}
-                  className="p-2 hover:bg-[#262626] rounded-full text-gray-400 hover:text-white transition-colors"
+                  className="p-2 hover:bg-gray-200 dark:hover:bg-[#262626] rounded-full text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-700">
-                <div className="prose prose-invert prose-sm max-w-none font-sans leading-relaxed whitespace-pre-wrap text-gray-300">
+              <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+                <div className="prose dark:prose-invert prose-sm max-w-none font-sans leading-relaxed whitespace-pre-wrap text-gray-800 dark:text-gray-300">
                   {(selectedBriefing.metadata?.summary || selectedBriefing.description || '').replace(/\*\*/g, '').replace(/__/, '')}
                 </div>
               </div>
@@ -330,13 +330,13 @@ function TasksScreen() {
       <AnimatePresence>
         {showModal && (
           <motion.div
-            className="fixed inset-0 flex items-center justify-center bg-black/70 backdrop-blur-md z-50"
+            className="fixed inset-0 flex items-center justify-center bg-gray-900/40 dark:bg-black/70 backdrop-blur-md z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div
-              className="bg-[#171717] text-white rounded-2xl p-6 w-[90%] md:w-[480px] border border-[#262626] shadow-lg"
+              className="bg-white dark:bg-[#171717] text-gray-900 dark:text-white rounded-2xl p-6 w-[90%] md:w-[480px] border border-gray-300 dark:border-[#262626] shadow-lg"
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
@@ -353,11 +353,11 @@ function TasksScreen() {
 
               {/* Task Type */}
               <div className="mb-4">
-                <label className="block text-xs text-gray-400 mb-1">Task Type</label>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Task Type</label>
                 <select
                   value={newTask.type}
                   onChange={(e) => setNewTask({ ...newTask, type: e.target.value })}
-                  className="w-full bg-[#121212] p-2 rounded-lg outline-none border border-[#333] text-sm text-gray-200 focus:ring-1 focus:ring-[#22d3ee] transition"
+                  className="w-full bg-gray-50 dark:bg-[#121212] p-2 rounded-lg outline-none border border-gray-300 dark:border-[#333] text-sm text-gray-900 dark:text-gray-200 focus:ring-1 focus:ring-[#22d3ee] transition"
                 >
                   <option value="morning-briefing">Morning Briefing</option>
                   <option value="check-reply">Check Reply (Follow-up)</option>
@@ -366,7 +366,7 @@ function TasksScreen() {
 
               {/* Frequency */}
               <div className="mb-4">
-                <label className="block text-xs text-gray-400 mb-1">Frequency</label>
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Frequency</label>
                 <div className="flex gap-2">
                   {["daily", "once", "weekly"].map((freq) => (
                     <button
@@ -374,7 +374,7 @@ function TasksScreen() {
                       onClick={() => setNewTask({ ...newTask, frequency: freq })}
                       className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize ${newTask.frequency === freq
                         ? "bg-[#22d3ee] text-black"
-                        : "bg-[#262626] text-gray-300 hover:bg-[#333]"
+                        : "bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-[#333]"
                         }`}
                     >
                       {freq}
@@ -385,14 +385,14 @@ function TasksScreen() {
 
               {/* Time */}
               <div className="mb-6">
-                <label className="block text-xs text-gray-400 mb-1">
+                <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
                   {newTask.frequency === 'daily' ? 'Time of Day' : 'Date & Time'}
                 </label>
                 <input
                   type={newTask.frequency === 'daily' ? "time" : "datetime-local"}
                   value={newTask.time}
                   onChange={(e) => setNewTask({ ...newTask, time: e.target.value })}
-                  className="w-full bg-[#121212] p-2 rounded-lg outline-none border border-[#333] text-sm text-gray-200 focus:ring-1 focus:ring-[#22d3ee] transition"
+                  className="w-full bg-gray-50 dark:bg-[#121212] p-2 rounded-lg outline-none border border-gray-300 dark:border-[#333] text-sm text-gray-900 dark:text-gray-200 focus:ring-1 focus:ring-[#22d3ee] transition"
                 />
               </div>
 

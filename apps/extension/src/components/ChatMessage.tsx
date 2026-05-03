@@ -55,7 +55,7 @@ const formatInlineStyles = (text: string) => {
   return parts.map((part, index) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
-        <span key={index} className="font-semibold text-white">
+        <span key={index} className="font-semibold text-gray-900 dark:text-white">
           {part.slice(2, -2)}
         </span>
       );
@@ -72,7 +72,7 @@ export const ChatMessage = ({ message, onRemove }: { message: Message; onRemove?
       <div className={`flex w-full items-start`}>
         <div className="w-full">
           {message.isLoading ? (
-            <div className="bg-[#1a1a1a] text-gray-400 p-4 rounded-2xl border border-white/5 text-sm animate-pulse shadow-sm">
+            <div className="bg-white dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 p-4 rounded-2xl border border-gray-300 dark:border-white/5 text-sm animate-pulse shadow-sm">
               Generating digest...
             </div>
           ) : (
@@ -88,7 +88,7 @@ export const ChatMessage = ({ message, onRemove }: { message: Message; onRemove?
       <div className={`flex w-full items-start`}>
         <div className="w-full">
           {message.isLoading ? (
-            <div className="bg-[#1a1a1a] text-gray-400 p-4 rounded-2xl border border-white/5 text-sm animate-pulse shadow-sm">
+            <div className="bg-white dark:bg-[#1a1a1a] text-gray-500 dark:text-gray-400 p-4 rounded-2xl border border-gray-300 dark:border-white/5 text-sm animate-pulse shadow-sm">
               Summarizing email...
             </div>
           ) : (
@@ -110,7 +110,7 @@ export const ChatMessage = ({ message, onRemove }: { message: Message; onRemove?
         className={`max-w-[85%] px-4 py-2.5 text-sm lg:text-base shadow-sm ${
           isUser 
             ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-white font-medium rounded-2xl rounded-tr-sm' 
-            : 'bg-[#1a1a1a] text-gray-200 border border-white/5 rounded-2xl rounded-tl-sm'
+            : 'bg-white dark:bg-[#1a1a1a] text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-white/5 rounded-2xl rounded-tl-sm'
         }`}
       >
         {isUser ? (

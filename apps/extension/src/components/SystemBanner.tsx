@@ -39,8 +39,8 @@ const SystemBanner: React.FC<SystemBannerProps> = ({ status: propStatus, hideMai
     // Priority 1: Maintenance Mode (Urgent - Red Card)
     if (status.maintenanceMode && !hideMaintenance) {
         return (
-            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-6 animate-in fade-in duration-300">
-                <div className="w-full max-w-[320px] bg-[#1C1E26] border border-red-500/20 rounded-2xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-gray-900/40 dark:bg-black/80 backdrop-blur-sm p-6 animate-in fade-in duration-300">
+                <div className="w-full max-w-[320px] bg-white dark:bg-[#1C1E26] border border-red-500/20 rounded-2xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
                     {/* Decorative header gradient */}
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-orange-500 to-red-500" />
 
@@ -49,9 +49,9 @@ const SystemBanner: React.FC<SystemBannerProps> = ({ status: propStatus, hideMai
                             <AlertCircle className="w-6 h-6" />
                         </div>
 
-                        <h3 className="text-white font-semibold text-lg mb-2">System Maintenance</h3>
+                        <h3 className="text-gray-900 dark:text-white font-semibold text-lg mb-2">System Maintenance</h3>
 
-                        <p className="text-gray-300 text-sm leading-relaxed">
+                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
                             {status.maintenanceMessage || "We're currently performing scheduled maintenance. Please check back shortly."}
                         </p>
 
@@ -69,12 +69,12 @@ const SystemBanner: React.FC<SystemBannerProps> = ({ status: propStatus, hideMai
         if (dismissed) return null;
 
         return (
-            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-[2px] p-6 animate-in fade-in duration-300">
-                <div className="w-full max-w-[300px] bg-[#181A20] border border-white/5 rounded-2xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
+            <div className="absolute inset-0 z-[100] flex items-center justify-center bg-gray-900/40 dark:bg-black/60 backdrop-blur-[2px] p-6 animate-in fade-in duration-300">
+                <div className="w-full max-w-[300px] bg-white dark:bg-[#181A20] border border-gray-300 dark:border-white/5 rounded-2xl shadow-2xl relative overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-2 duration-300">
 
                     <button
                         onClick={() => setDismissed(true)}
-                        className="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors p-1"
+                        className="absolute top-3 right-3 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
                     </button>
@@ -84,9 +84,9 @@ const SystemBanner: React.FC<SystemBannerProps> = ({ status: propStatus, hideMai
                             <Terminal className="w-5 h-5" />
                         </div>
 
-                        <h3 className="text-white font-medium text-base mb-2">Update</h3>
+                        <h3 className="text-gray-900 dark:text-white font-medium text-base mb-2">Update</h3>
 
-                        <p className="text-gray-300 text-sm leading-relaxed font-light">
+                        <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed font-light">
                             {status.announcement}
                         </p>
 

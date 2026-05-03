@@ -39,9 +39,9 @@ export default function HistoryScreen({
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#121212] text-white">
+        <div className="flex flex-col h-full bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-white">
             {/* Header with Tabs */}
-            <div className="p-4 border-b border-[#262626] bg-[#121212] sticky top-0 z-10 space-y-3">
+            <div className="p-4 border-b border-gray-300 dark:border-[#262626] bg-gray-50 dark:bg-[#121212] sticky top-0 z-10 space-y-3">
                 <div className="flex justify-between items-center">
                     <h2 className="text-lg font-semibold text-[#22d3ee]">History</h2>
                     {activeTab === 'chats' && conversations.length > 0 && (
@@ -56,17 +56,17 @@ export default function HistoryScreen({
                     )}
                 </div>
 
-                <div className="flex p-1 bg-[#1e1e1e] rounded-lg">
+                <div className="flex p-1 bg-white dark:bg-[#1e1e1e] rounded-lg border border-gray-300 dark:border-transparent">
                     <button
                         onClick={() => setActiveTab('chats')}
-                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${activeTab === 'chats' ? 'bg-[#262626] text-white shadow-sm' : 'text-gray-400 hover:text-gray-200'
+                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${activeTab === 'chats' ? 'bg-gray-100 dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                             }`}
                     >
                         Chats
                     </button>
                     <button
                         onClick={() => setActiveTab('tasks')}
-                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${activeTab === 'tasks' ? 'bg-[#262626] text-white shadow-sm' : 'text-gray-400 hover:text-gray-200'
+                        className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${activeTab === 'tasks' ? 'bg-gray-100 dark:bg-[#262626] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                             }`}
                     >
                         Task Activity
@@ -89,11 +89,11 @@ export default function HistoryScreen({
                             conversations.map((chat) => (
                                 <div
                                     key={chat.id}
-                                    className="group flex items-center justify-between p-3 rounded-lg bg-[#1e1e1e] border border-[#262626] hover:border-[#22d3ee]/50 cursor-pointer"
+                                    className="group flex items-center justify-between p-3 rounded-lg bg-white dark:bg-[#1e1e1e] border border-gray-300 dark:border-[#262626] hover:border-[#22d3ee]/50 cursor-pointer"
                                     onClick={() => onSelectConversation(chat.id)}
                                 >
                                     <div className="flex-1 min-w-0 pr-3">
-                                        <h3 className="font-medium text-sm text-gray-200 truncate group-hover:text-white">
+                                        <h3 className="font-medium text-sm text-gray-800 dark:text-gray-200 truncate group-hover:text-gray-900 dark:group-hover:text-white">
                                             {chat.title}
                                         </h3>
                                         <p className="text-[10px] text-gray-500 mt-1">
@@ -132,12 +132,12 @@ export default function HistoryScreen({
                             </div>
                         ) : (
                             activities.map((item) => (
-                                <div key={item.id} className="p-3 rounded-lg bg-[#1e1e1e] border border-[#262626]">
+                                <div key={item.id} className="p-3 rounded-lg bg-white dark:bg-[#1e1e1e] border border-gray-300 dark:border-[#262626]">
                                     <div className="flex items-start justify-between mb-1">
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold ${item.action === 'digest' ? 'bg-pink-500/20 text-pink-400' :
-                                                item.action === 'check-reply' ? 'bg-blue-500/20 text-blue-400' :
-                                                    'bg-[#262626] text-gray-400'
+                                            <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold ${item.action === 'digest' ? 'bg-pink-500/10 text-pink-500 dark:bg-pink-500/20 dark:text-pink-400' :
+                                                item.action === 'check-reply' ? 'bg-blue-500/10 text-blue-500 dark:bg-blue-500/20 dark:text-blue-400' :
+                                                    'bg-gray-100 text-gray-600 dark:bg-[#262626] dark:text-gray-400'
                                                 }`}>
                                                 {item.action === 'digest' ? 'Briefing' : item.action}
                                             </span>
@@ -146,11 +146,11 @@ export default function HistoryScreen({
                                             </span>
                                         </div>
                                     </div>
-                                    <p className="text-sm text-gray-300 mt-1">{item.description}</p>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">{item.description}</p>
 
                                     {/* Show summary result if available logic similar to dashboard */}
                                     {item.action === 'digest' && item.metadata?.summary && (
-                                        <div className="mt-2 p-3 bg-[#121212] rounded-lg border border-[#333] text-sm text-gray-200 whitespace-pre-wrap leading-relaxed relative font-sans">
+                                        <div className="mt-2 p-3 bg-gray-50 dark:bg-[#121212] rounded-lg border border-gray-300 dark:border-[#333] text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed relative font-sans">
                                             <FileText className="w-4 h-4 absolute top-3 right-3 text-pink-500/50" />
                                             {item.metadata.summary}
                                         </div>
