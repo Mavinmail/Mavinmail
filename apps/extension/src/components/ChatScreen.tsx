@@ -4,7 +4,6 @@ import DailyDigestView from "./DailyDigestView";
 import { useAutocomplete } from "../hooks/useAutocomplete.js"; // <-- Import our new hook
 import EnhancementMenu from "./EnhancementMenu.js"; // <-- Import our new component
 import Tooltip from "./Tooltip";
-import { Star } from "lucide-react";
 
 //rag
 import { askQuestion, askQuestionStream, syncModelPreference, enhanceText, getUserCredits } from "../services/api.js";
