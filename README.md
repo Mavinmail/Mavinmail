@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./apps/dashboard/public/mavinlogo.png" alt="Mavinmail Logo" width="120" />
+  <img src="./apps/dashboard/public/logo.png" alt="Mavinmail Logo" width="120" />
   <h1>📧 Mavinmail</h1>
   <p><strong>Your Next-Generation AI-Driven Email Assistant</strong></p>
 </div>

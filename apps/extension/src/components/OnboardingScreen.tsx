@@ -31,7 +31,7 @@ export default function OnboardingScreen({ login, isMaintenanceMode = false, mai
     };
 
     return (
-        <div className="flex min-h-screen w-full flex-col bg-[#0A0A0A] text-white overflow-hidden relative selection:bg-[#22d3ee] selection:text-black font-sans">
+        <div className="flex min-h-screen w-full flex-col bg-white dark:bg-[#0A0A0A] text-gray-900 dark:text-white overflow-hidden relative selection:bg-[#22d3ee] selection:text-black font-sans">
 
             {/* Background Ambience */}
             <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#22d3ee]/5 blur-[120px] rounded-full pointer-events-none" />
@@ -42,13 +42,14 @@ export default function OnboardingScreen({ login, isMaintenanceMode = false, mai
 
                 {/* Logo & Header */}
                 <div className="flex flex-col items-center mb-10 text-center">
-                    <div className="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-tr from-[#171717] to-[#262626] border border-[#333] flex items-center justify-center shadow-2xl shadow-black/50 overflow-hidden">
-                        <img src="/mavinlogo.png" alt="Mavin Logo" className="w-full h-full object-cover" />
+                    <div className="h-16 mb-6 rounded-2xl bg-white dark:bg-gradient-to-tr dark:from-[#171717] dark:to-[#262626] border border-transparent dark:border-[#333] flex items-center justify-center shadow-2xl shadow-black/5 dark:shadow-black/50 overflow-hidden p-0 dark:p-1 dark:w-16">
+                        <img src="/mavinlogo.png" alt="Mavin Logo" className="w-full h-full object-cover hidden dark:block" />
+                        <img src="/mavin-logo-dark.png" alt="Mavin Logo" className="h-full w-auto object-contain block dark:hidden" />
                     </div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent mb-2">
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent mb-2">
                         Welcome to Mavin
                     </h1>
-                    <p className="text-gray-400 text-sm leading-relaxed max-w-[260px]">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed max-w-[260px]">
                         Your intelligent email assistant. <br /> Sign in to start your productive day.
                     </p>
                 </div>
@@ -61,7 +62,7 @@ export default function OnboardingScreen({ login, isMaintenanceMode = false, mai
                             <AlertCircle className="w-5 h-5 text-[#ef4444] shrink-0 mt-0.5" />
                             <div className="flex-1">
                                 <h3 className="text-[#ef4444] font-medium text-sm mb-0.5">System Maintenance</h3>
-                                <p className="text-gray-400 text-xs leading-relaxed">
+                                <p className="text-gray-600 dark:text-gray-400 text-xs leading-relaxed">
                                     {maintenanceMessage || "We're currently performing scheduled maintenance. Check back soon."}
                                 </p>
                             </div>
@@ -74,7 +75,7 @@ export default function OnboardingScreen({ login, isMaintenanceMode = false, mai
                                 id="email"
                                 type="email"
                                 placeholder="Email address"
-                                className={`w-full px-4 py-3 bg-[#121212] border border-[#262626] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee] transition-all group-hover:border-[#333] ${isMaintenanceMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`w-full px-4 py-3 bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#262626] rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee] transition-all group-hover:border-gray-300 dark:group-hover:border-[#333] ${isMaintenanceMode ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
@@ -88,7 +89,7 @@ export default function OnboardingScreen({ login, isMaintenanceMode = false, mai
                                 id="password"
                                 type="password"
                                 placeholder="Password"
-                                className={`w-full px-4 py-3 bg-[#121212] border border-[#262626] rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee] transition-all group-hover:border-[#333] ${isMaintenanceMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`w-full px-4 py-3 bg-gray-50 dark:bg-[#121212] border border-gray-200 dark:border-[#262626] rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee] transition-all group-hover:border-gray-300 dark:group-hover:border-[#333] ${isMaintenanceMode ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
@@ -109,7 +110,7 @@ export default function OnboardingScreen({ login, isMaintenanceMode = false, mai
                         disabled={loading || isMaintenanceMode}
                         className={`w-full mt-2 py-3 px-4 rounded-xl font-semibold text-sm transition-all transform active:scale-[0.98]
               ${(loading || isMaintenanceMode)
-                                ? 'bg-[#1a1a1a] text-gray-500 cursor-not-allowed border border-[#333]'
+                                ? 'bg-gray-100 dark:bg-[#1a1a1a] text-gray-400 dark:text-gray-500 cursor-not-allowed border border-gray-200 dark:border-[#333]'
                                 : 'bg-[#22d3ee] text-black hover:bg-[#1bbccf] hover:shadow-[0_0_20px_-5px_#22d3ee]'
                             }
             `}
@@ -124,7 +125,7 @@ export default function OnboardingScreen({ login, isMaintenanceMode = false, mai
                         Don't have an account?{' '}
                         <a
                             href="#"
-                            className="text-gray-400 hover:text-[#22d3ee] transition-colors underline decoration-dotted decoration-gray-600 hover:decoration-[#22d3ee]"
+                            className="text-gray-600 dark:text-gray-400 hover:text-[#22d3ee] dark:hover:text-[#22d3ee] transition-colors underline decoration-dotted decoration-gray-400 dark:decoration-gray-600 hover:decoration-[#22d3ee] dark:hover:decoration-[#22d3ee]"
                             onClick={(e) => {
                                 e.preventDefault();
                                 // Handle signup click or link to website

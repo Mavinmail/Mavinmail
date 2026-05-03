@@ -26,15 +26,15 @@ export default function LoginScreen({ login, onLoginSuccess, onCancel }: LoginSc
 
   return (
     // Apply the new styles to the form and its elements
-    <div className="flex h-screen flex-col items-center justify-center bg-[#121212] text-white">
-      <h1 className="text-2xl font-bold mb-6">Login</h1>
+    <div className="flex h-screen flex-col items-center justify-center bg-gray-50 dark:bg-[#121212] text-gray-900 dark:text-white">
+      <h1 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Login</h1>
 
       <form onSubmit={handleSubmit} className="flex flex-col items-center">
         <input
           id="email"
           type="email"
           placeholder="Email"
-          className="mb-3 px-4 py-2 rounded bg-[#171717] border border-[#262626] text-white w-64 focus:outline-none focus:ring-1 focus:ring-[#22d3ee]"
+          className="mb-3 px-4 py-2 rounded bg-white dark:bg-[#171717] border border-gray-300 dark:border-[#262626] text-gray-900 dark:text-white w-64 focus:outline-none focus:ring-1 focus:ring-[#22d3ee]"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -44,7 +44,7 @@ export default function LoginScreen({ login, onLoginSuccess, onCancel }: LoginSc
           id="password"
           type="password"
           placeholder="Password"
-          className="mb-4 px-4 py-2 rounded bg-[#171717] border border-[#262626] text-white w-64 focus:outline-none focus:ring-1 focus:ring-[#22d3ee]"
+          className="mb-4 px-4 py-2 rounded bg-white dark:bg-[#171717] border border-gray-300 dark:border-[#262626] text-gray-900 dark:text-white w-64 focus:outline-none focus:ring-1 focus:ring-[#22d3ee]"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -65,7 +65,7 @@ export default function LoginScreen({ login, onLoginSuccess, onCancel }: LoginSc
       {/* The "Back" button is now the "Cancel" button */}
       <button
         onClick={onCancel}
-        className="mt-4 text-sm text-gray-400 hover:text-white"
+        className="mt-4 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
       >
         ← Back to Chat
       </button>

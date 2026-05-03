@@ -11,17 +11,17 @@ const steps = [
 
 export function FlowchartSection() {
   return (
-    <section id="how-it-works" className="py-28 bg-[#0C0C0C] border-t border-white/[0.04]">
+    <section id="how-it-works" className="py-28 bg-background dark:bg-[#0C0C0C] border-t border-border dark:border-white/[0.04]">
       <div className="max-w-[1200px] mx-auto px-6">
         {/* Header */}
         <div className="max-w-xl mb-16">
           <p className="text-[11px] font-medium text-[#24D3EE] uppercase tracking-[0.15em] mb-3 font-mono">
             How it works
           </p>
-          <h2 className="text-[32px] font-bold text-white tracking-[-0.02em] leading-tight">
+          <h2 className="text-[32px] font-bold text-foreground dark:text-white tracking-[-0.02em] leading-tight">
             From email to action in seconds
           </h2>
-          <p className="mt-4 text-[15px] text-zinc-500 leading-relaxed">
+          <p className="mt-4 text-[15px] text-muted-foreground dark:text-zinc-500 leading-relaxed">
             Every email is processed through an intelligent pipeline that understands context before acting.
           </p>
         </div>
@@ -43,16 +43,16 @@ export function FlowchartSection() {
               >
                 {/* Node dot */}
                 <div className="relative z-10 flex-shrink-0 w-14 flex justify-center">
-                  <div className="w-3 h-3 rounded-full border-2 border-white/[0.1] bg-[#0C0C0C] group-hover:border-[#24D3EE]/50 transition-colors" />
+                  <div className="w-3 h-3 rounded-full border-2 border-border dark:border-white/[0.1] bg-background dark:bg-[#0C0C0C] group-hover:border-[#24D3EE]/50 transition-colors" />
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 pb-6 border-b border-white/[0.04]">
+                <div className="flex-1 pb-6 border-b border-border dark:border-white/[0.04]">
                   <div className="flex items-baseline gap-3 mb-1">
                     <span className="text-[12px] font-mono text-[#24D3EE]">{step.num}</span>
-                    <h3 className="text-[16px] font-semibold text-white">{step.label}</h3>
+                    <h3 className="text-[16px] font-semibold text-foreground dark:text-white">{step.label}</h3>
                   </div>
-                  <p className="text-[14px] text-zinc-500 ml-8">{step.sub}</p>
+                  <p className="text-[14px] text-muted-foreground dark:text-zinc-500 ml-8">{step.sub}</p>
                 </div>
               </motion.div>
             ))}

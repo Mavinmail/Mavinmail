@@ -14,7 +14,7 @@ const navTabs: { id: Screen; icon: any }[] = [
 
 function SidebarNav({ currentScreen, onScreenChange }: SidebarNavProps) {
   return (
-    <nav className="flex flex-col items-center justify-between h-full py-6 w-[60px] border-l border-[#262626] bg-[#171717]">
+    <nav className="flex flex-col items-center justify-between h-full py-6 w-[60px] border-l border-gray-300 dark:border-[#262626] bg-gray-50 dark:bg-[#171717]">
 
       {/* Top Section */}
       <div className="flex flex-col items-center gap-6">
@@ -28,7 +28,7 @@ function SidebarNav({ currentScreen, onScreenChange }: SidebarNavProps) {
               onClick={() => onScreenChange(tab.id)}
               className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${currentScreen === tab.id
                 ? 'bg-[#22d3ee] text-[#171717] shadow-[0_0_10px_rgba(34,211,238,0.3)]'
-                : 'text-gray-500 hover:text-gray-300'
+                : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
                 }`}
               title={tab.id}
             >
@@ -44,7 +44,7 @@ function SidebarNav({ currentScreen, onScreenChange }: SidebarNavProps) {
           onClick={() => onScreenChange('Settings')}
           className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${currentScreen === 'Settings'
             ? 'bg-[#22d3ee] text-[#171717] shadow-[0_0_10px_rgba(34,211,238,0.3)]'
-            : 'text-gray-500 hover:text-gray-300'
+            : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
             }`}
           title="Settings"
         >
@@ -55,7 +55,7 @@ function SidebarNav({ currentScreen, onScreenChange }: SidebarNavProps) {
           onClick={() => onScreenChange('Support')}
           className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${currentScreen === 'Support'
             ? 'bg-[#22d3ee] text-[#171717] shadow-[0_0_10px_rgba(34,211,238,0.3)]'
-            : 'text-gray-500 hover:text-gray-300'
+            : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
             }`}
           title="Support"
         >
@@ -66,7 +66,7 @@ function SidebarNav({ currentScreen, onScreenChange }: SidebarNavProps) {
           onClick={() => onScreenChange('Profile')}
           className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${currentScreen === 'Profile'
             ? 'bg-[#22d3ee] text-[#171717] shadow-[0_0_10px_rgba(34,211,238,0.3)]'
-            : 'text-gray-500 hover:text-gray-300'
+            : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
             }`}
           title="Profile"
         >

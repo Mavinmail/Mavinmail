@@ -108,10 +108,10 @@ export default function SummaryResultView({
   const rawText = typeof summary === 'string' ? summary : null;
 
   return (
-    <div className="relative p-4 sm:p-5 bg-[#171717] border border-[#262626] rounded-xl text-white mb-4 shadow-sm">
+    <div className="relative p-4 sm:p-5 bg-white dark:bg-[#171717] border border-gray-300 dark:border-[#262626] rounded-xl text-gray-900 dark:text-white mb-4 shadow-sm">
       <button
         onClick={onClear}
-        className="absolute top-3 right-3 text-gray-400 hover:text-white transition-colors p-1"
+        className="absolute top-3 right-3 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors p-1"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -137,19 +137,19 @@ export default function SummaryResultView({
       ) : data ? (
         <div className="space-y-4">
           {/* Header: Title & Sender */}
-          <div className="border-b border-[#262626] pb-3 pr-6">
-            <h3 className="font-semibold text-white text-base leading-tight mb-1">
+          <div className="border-b border-gray-300 dark:border-[#262626] pb-3 pr-6">
+            <h3 className="font-semibold text-gray-900 dark:text-white text-base leading-tight mb-1">
               {data.email_title || "Email Summary"}
             </h3>
-            <p className="text-xs text-gray-400">
-              From: <span className="text-gray-300">{data.sender || "Unknown"}</span>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              From: <span className="text-gray-700 dark:text-gray-300">{data.sender || "Unknown"}</span>
             </p>
           </div>
 
           {/* Main Summary */}
           <div>
             {/* <h4 className="text-[11px] uppercase tracking-wider text-gray-500 font-bold mb-1.5">Summary</h4> */}
-            <p className="text-sm text-gray-300 leading-relaxed">
+            <p className="text-sm text-gray-800 dark:text-gray-300 leading-relaxed">
               {data.summary}
             </p>
           </div>
@@ -160,7 +160,7 @@ export default function SummaryResultView({
               <h4 className="text-xs uppercase tracking-wider text-gray-500 font-bold mb-2">Important Details</h4>
               <ul className="space-y-1.5">
                 {data.important_details.map((detail, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-300">
+                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-800 dark:text-gray-300">
                     <span className="text-[#22d3ee] mt-1.5 w-1 h-1 bg-[#22d3ee] rounded-full flex-shrink-0"></span>
                     <span>{detail}</span>
                   </li>
@@ -171,12 +171,12 @@ export default function SummaryResultView({
 
           {/* Action Items */}
           {data.action_items && data.action_items.length > 0 && (
-            <div className="bg-[#121212] rounded-lg p-3 border border-[#262626]">
+            <div className="bg-gray-50 dark:bg-[#121212] rounded-lg p-3 border border-gray-300 dark:border-[#262626]">
               <h4 className="text-xs uppercase tracking-wider text-[#22d3ee] font-bold mb-2.5">Action Items</h4>
               <ul className="space-y-2">
                 {data.action_items.map((action, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm text-white font-medium">
-                    <input type="checkbox" className="mt-1 rounded border-gray-600 bg-[#262626] text-[#22d3ee] focus:ring-0 focus:ring-offset-0" readOnly />
+                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-900 dark:text-white font-medium">
+                    <input type="checkbox" className="mt-1 rounded border-gray-300 dark:border-gray-600 bg-gray-200 dark:bg-[#262626] text-[#22d3ee] focus:ring-0 focus:ring-offset-0" readOnly />
                     <span>{action}</span>
                   </li>
                 ))}
@@ -191,7 +191,7 @@ export default function SummaryResultView({
                 data.intent.toLowerCase() === 'request' ? 'text-blue-400 bg-blue-400/10 border-blue-400/20' :
                   data.intent.toLowerCase() === 'meeting' ? 'text-purple-400 bg-purple-400/10 border-purple-400/20' :
                     data.intent.toLowerCase() === 'follow-up' ? 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20' :
-                      'text-gray-400 bg-[#262626] border-[#333]'
+                      'text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-[#262626] border-gray-300 dark:border-[#333]'
                 }`}>
                 {data.intent}
               </span>
@@ -200,7 +200,7 @@ export default function SummaryResultView({
               <span className={`px-2 py-1 rounded text-[10px] uppercase font-semibold border ${data.sentiment.toLowerCase() === 'positive' ? 'bg-green-400/10 text-green-400 border-green-400/20' :
                 data.sentiment.toLowerCase() === 'negative' ? 'bg-red-400/10 text-red-400 border-red-400/20' :
                   data.sentiment.toLowerCase() === 'urgent' ? 'bg-orange-400/10 text-orange-400 border-orange-400/20' :
-                    'bg-[#262626] text-gray-400 border-[#333]'
+                    'bg-gray-100 dark:bg-[#262626] text-gray-600 dark:text-gray-400 border-gray-300 dark:border-[#333]'
                 }`}>
                 {data.sentiment}
               </span>
@@ -213,7 +213,7 @@ export default function SummaryResultView({
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-[#22d3ee] text-sm">Email Summary</h3>
           </div>
-          <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
+          <p className="text-sm text-gray-800 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
             {rawText}
           </p>
         </div>

@@ -150,7 +150,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center bg-[#0A0A0A] space-y-4">
+      <div className="flex h-screen flex-col items-center justify-center bg-gray-50 dark:bg-[#0A0A0A] space-y-4">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#22d3ee]"></div>
       </div>
     );
@@ -164,7 +164,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
   const progressPercent = isUnlimited ? 100 : Math.min((credits / maxCredits) * 100, 100);
 
   return (
-    <div className="flex h-screen w-full flex-col bg-[#0A0A0A] text-white font-sans selection:bg-[#22d3ee] selection:text-black">
+    <div className="flex h-screen w-full flex-col bg-gray-50 dark:bg-[#0A0A0A] text-gray-900 dark:text-white font-sans selection:bg-[#22d3ee] selection:text-black">
 
       {/* --- Ambient Background --- */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
@@ -173,11 +173,11 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
       </div>
 
       {/* --- Header --- */}
-      <div className="relative sticky top-0 z-20 flex items-center justify-between px-5 py-4 bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-[#262626]">
+      <div className="relative sticky top-0 z-20 flex items-center justify-between px-5 py-4 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-xl border-b border-gray-300 dark:border-[#262626]">
         <h1 className="text-lg font-semibold tracking-wide">Settings & Profile</h1>
         <button
           onClick={fetchData}
-          className="p-2 hover:bg-[#1f1f1f] rounded-full transition-all active:scale-90 text-gray-400 hover:text-white"
+          className="p-2 hover:bg-gray-100 dark:hover:bg-[#1f1f1f] rounded-full transition-all active:scale-90 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
           title="Refresh Data"
         >
           <RefreshCw className="h-4 w-4" />
@@ -191,14 +191,14 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
           {/* 1. Avatar & Hero Section */}
           <div className="flex flex-col items-center">
             <div className="relative group cursor-pointer">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#171717] to-[#262626] border-2 border-[#333] flex items-center justify-center text-[#22d3ee] text-3xl font-bold shadow-xl overflow-hidden group-hover:border-[#22d3ee] transition-all duration-300">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-200 dark:from-[#171717] to-gray-300 dark:to-[#262626] border-2 border-gray-300 dark:border-[#333] flex items-center justify-center text-[#22d3ee] text-3xl font-bold shadow-xl overflow-hidden group-hover:border-[#22d3ee] transition-all duration-300">
                 {getInitials()}
               </div>
               <div className="absolute bottom-0 right-0 bg-[#22d3ee] text-[#0A0A0A] p-1.5 rounded-full border-2 border-[#0A0A0A] opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                 <User className="w-3 h-3" />
               </div>
             </div>
-            <h2 className="mt-4 text-xl font-bold text-white">{personalInfo.firstName} {personalInfo.lastName}</h2>
+            <h2 className="mt-4 text-xl font-bold text-gray-900 dark:text-white">{personalInfo.firstName} {personalInfo.lastName}</h2>
             <p className="text-gray-500 text-sm">{personalInfo.email}</p>
             {/* Plan Badge */}
             <span className={`mt-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isAdmin
@@ -212,16 +212,16 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
           </div>
 
           {/* 2. Credit Balance */}
-          <div className="bg-[#121212] border border-[#262626] rounded-xl p-4 space-y-3">
+          <div className="bg-white dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-xl p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-gray-300 flex items-center gap-1.5">
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
                 <Coins className="w-4 h-4 text-[#22d3ee]" /> Credits
               </span>
               <span className="text-lg font-bold text-[#22d3ee]">{isUnlimited ? '∞' : credits.toLocaleString()}</span>
             </div>
             {!isUnlimited && (
               <>
-                <div className="w-full bg-[#262626] rounded-full h-2 overflow-hidden">
+                <div className="w-full bg-gray-200 dark:bg-[#262626] rounded-full h-2 overflow-hidden">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-[#22d3ee] to-[#3b82f6] transition-all duration-500"
                     style={{ width: `${progressPercent}%` }}
@@ -250,8 +250,8 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
           {!isAdmin && (
             <div className="space-y-3">
               {!isPro && (
-                <div className="bg-[#121212] border border-[#262626] rounded-xl p-4 space-y-3">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                <div className="bg-white dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-xl p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
                     <Crown className="w-4 h-4 text-yellow-400" /> Upgrade to Pro — $30
                   </div>
                   <p className="text-xs text-gray-500">Get 10,000 credits and Pro status.</p>
@@ -261,7 +261,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
                       value={proCode}
                       onChange={(e) => setProCode(e.target.value)}
                       placeholder="Enter promo code"
-                      className="flex-1 bg-[#0A0A0A] border border-[#333] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#22d3ee] transition-colors placeholder-gray-600"
+                      className="flex-1 bg-gray-50 dark:bg-[#0A0A0A] border border-gray-300 dark:border-[#333] rounded-lg px-3 py-2 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-[#22d3ee] transition-colors placeholder-gray-500 dark:placeholder-gray-600"
                     />
                     <button
                       onClick={handleUpgradePro}
@@ -274,8 +274,8 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
                 </div>
               )}
 
-              <div className="bg-[#121212] border border-[#262626] rounded-xl p-4 space-y-3">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white">
+              <div className="bg-white dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
                   <Zap className="w-4 h-4 text-emerald-400" /> Top-Up Credits — $5
                 </div>
                 <p className="text-xs text-gray-500">Add 1,000 credits instantly.</p>
@@ -285,7 +285,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
                     value={topUpCode}
                     onChange={(e) => setTopUpCode(e.target.value)}
                     placeholder="Enter top-up code"
-                    className="flex-1 bg-[#0A0A0A] border border-[#333] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50 transition-colors placeholder-gray-600"
+                    className="flex-1 bg-gray-50 dark:bg-[#0A0A0A] border border-gray-300 dark:border-[#333] rounded-lg px-3 py-2 text-xs text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500/50 transition-colors placeholder-gray-500 dark:placeholder-gray-600"
                   />
                   <button
                     onClick={handleTopUp}
@@ -301,25 +301,25 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
 
           {/* 4. Stats Grid */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-[#121212] border border-[#262626] rounded-xl p-3 flex flex-col items-center justify-center hover:border-[#22d3ee]/30 transition-colors">
+            <div className="bg-white dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-xl p-3 flex flex-col items-center justify-center hover:border-[#22d3ee]/30 transition-colors">
               <div className="mb-2 p-2 bg-[#22d3ee]/10 rounded-full text-[#22d3ee]">
                 <Mail className="w-4 h-4" />
               </div>
-              <span className="text-xl font-bold text-white">{stats?.emailsToday || 0}</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">{stats?.emailsToday || 0}</span>
               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium mt-1">Today</span>
             </div>
-            <div className="bg-[#121212] border border-[#262626] rounded-xl p-3 flex flex-col items-center justify-center hover:border-[#22d3ee]/30 transition-colors">
+            <div className="bg-white dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-xl p-3 flex flex-col items-center justify-center hover:border-[#22d3ee]/30 transition-colors">
               <div className="mb-2 p-2 bg-[#22d3ee]/10 rounded-full text-[#22d3ee]">
                 <Calendar className="w-4 h-4" />
               </div>
-              <span className="text-xl font-bold text-white">{stats?.totalEmails || 0}</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">{stats?.totalEmails || 0}</span>
               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium mt-1">Total</span>
             </div>
-            <div className="bg-[#121212] border border-[#262626] rounded-xl p-3 flex flex-col items-center justify-center hover:border-[#22d3ee]/30 transition-colors">
+            <div className="bg-white dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-xl p-3 flex flex-col items-center justify-center hover:border-[#22d3ee]/30 transition-colors">
               <div className="mb-2 p-2 bg-[#22d3ee]/10 rounded-full text-[#22d3ee]">
                 <Clock className="w-4 h-4" />
               </div>
-              <span className="text-xl font-bold text-white">
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
                 {stats?.timeSavedMinutes ? formatTimeSaved(stats.timeSavedMinutes) : '0m'}
               </span>
               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium mt-1">Saved</span>
@@ -337,7 +337,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
                   type="text"
                   value={personalInfo.firstName}
                   onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  className="w-full bg-[#121212] border border-[#262626] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee]/50 transition-all placeholder-gray-600"
+                  className="w-full bg-white dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee]/50 transition-all placeholder-gray-400 dark:placeholder-gray-600"
                   placeholder="First name"
                 />
               </div>
@@ -347,7 +347,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
                   type="text"
                   value={personalInfo.lastName}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  className="w-full bg-[#121212] border border-[#262626] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee]/50 transition-all placeholder-gray-600"
+                  className="w-full bg-white dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-[#22d3ee] focus:ring-1 focus:ring-[#22d3ee]/50 transition-all placeholder-gray-400 dark:placeholder-gray-600"
                   placeholder="Last name"
                 />
               </div>
@@ -359,7 +359,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
                 type="email"
                 value={personalInfo.email}
                 disabled
-                className="w-full bg-[#121212]/50 border border-[#262626] rounded-xl px-4 py-2.5 text-sm text-gray-400 cursor-not-allowed focus:outline-none"
+                className="w-full bg-gray-100 dark:bg-[#121212]/50 border border-gray-300 dark:border-[#262626] rounded-xl px-4 py-2.5 text-sm text-gray-500 dark:text-gray-400 cursor-not-allowed focus:outline-none"
               />
             </div>
 
@@ -385,7 +385,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
           </div>
 
           {/* 6. Danger / Logout Zone */}
-          <div className="pt-6 border-t border-[#262626]">
+          <div className="pt-6 border-t border-gray-300 dark:border-[#262626]">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${connection?.isConnected ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]' : 'bg-red-500'}`} />
@@ -397,7 +397,7 @@ export default function ProfileScreen({ onLogout }: ProfileScreenProps) {
 
             <button
               onClick={onLogout}
-              className="w-full bg-[#121212] hover:bg-red-900/10 text-red-500 border border-[#262626] hover:border-red-500/30 py-3 rounded-xl font-medium transition-all text-sm flex items-center justify-center gap-2"
+              className="w-full bg-white dark:bg-[#121212] hover:bg-red-50 dark:hover:bg-red-900/10 text-red-500 border border-gray-300 dark:border-[#262626] hover:border-red-300 dark:hover:border-red-500/30 py-3 rounded-xl font-medium transition-all text-sm flex items-center justify-center gap-2"
             >
               <LogOut className="w-4 h-4" />
               Sign Out

@@ -477,18 +477,17 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
 
 
   return (
-    <div className="flex h-screen flex-col bg-[#121212] text-white font-sans relative">
+    <div className="flex h-screen flex-col bg-white dark:bg-[#121212] text-gray-900 dark:text-white font-sans relative">
       <main className="flex-1 p-3 sm:p-4 lg:p-5 space-y-3 sm:space-y-4 lg:space-y-5 overflow-y-auto">
 
         <div className="flex w-full items-center justify-between">
           <div className="flex items-start gap-2.5 sm:gap-3 lg:gap-3">
-            <img
-              src="/logo.png"
-              alt="Meeco Avatar"
-              className="w-6 h-6 sm:w-7 sm:h-7 lg:w-7 lg:h-7 rounded-full flex-shrink-0"
-            />
+            <div className="relative w-6 h-6 sm:w-7 sm:h-7 lg:w-7 lg:h-7 flex-shrink-0 mt-0.5">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#22d3ee] via-[#3b82f6] to-[#a855f7] animate-spin" style={{ animationDuration: '4s' }} />
+              <div className="absolute inset-[2.5px] rounded-full bg-white dark:bg-[#121212] z-10" />
+            </div>
 
-            <div className="max-w-[99%] rounded-lg px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm lg:text-base bg-[#171717] text-gray-100">
+            <div className="max-w-[99%] rounded-lg px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 lg:py-3 text-xs sm:text-sm lg:text-base bg-gray-100 dark:bg-[#171717] text-gray-800 dark:text-gray-100">
               <p className="whitespace-pre-wrap break-words">
                 Hi! It's Mavin, How can I help today?
               </p>
@@ -499,7 +498,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
           {isLoggedIn && activeConversationId && (
             <button
               onClick={() => onConversationChange(null)}
-              className="p-1.5 px-2.5 text-xs bg-[#262626] hover:bg-[#333] text-gray-300 rounded border border-[#333] transition-colors"
+              className="p-1.5 px-2.5 text-xs bg-gray-200 dark:bg-[#262626] hover:bg-gray-300 dark:hover:bg-[#333] text-gray-600 dark:text-gray-300 rounded border border-gray-300 dark:border-[#333] transition-colors"
             >
               + New Chat
             </button>
@@ -520,7 +519,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
                   setSelectedDate("");
                   setActiveView("digest");
                 }}
-                className="px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 bg-[#171717] hover:bg-[#262626] rounded-lg transition-colors text-xs sm:text-sm lg:text-base font-medium flex items-center gap-2 border border-[#262626] hover:border-[#22d3ee] w-full text-left"
+                className="px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-[#171717] hover:bg-gray-100 dark:hover:bg-[#262626] rounded-lg transition-colors text-xs sm:text-sm lg:text-base font-medium flex items-center gap-2 border border-gray-300 dark:border-[#262626] hover:border-[#22d3ee] w-full text-left"
               >
                 <span className="text-[#22d3ee] text-xs sm:text-sm">✦</span> Summarize all emails I
                 received today.
@@ -530,15 +529,15 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
               <div className="relative w-full" ref={datePickerRef}>
                 <button
                   onClick={() => setShowDatePicker(!showDatePicker)}
-                  className="px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 bg-[#171717] hover:bg-[#262626] rounded-lg transition-colors text-xs sm:text-sm lg:text-base font-medium flex items-center gap-2 border border-[#262626] hover:border-[#22d3ee] w-full text-left"
+                  className="px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-[#171717] hover:bg-gray-100 dark:hover:bg-[#262626] rounded-lg transition-colors text-xs sm:text-sm lg:text-base font-medium flex items-center gap-2 border border-gray-300 dark:border-[#262626] hover:border-[#22d3ee] w-full text-left"
                 >
                   <span className="text-[#22d3ee] text-xs sm:text-sm">📅</span> Summarize emails by date
                 </button>
 
                 {showDatePicker && (
-                  <div className="absolute top-full left-0 mt-2 z-50 bg-[#171717] border border-[#262626] rounded-lg p-3 shadow-lg w-full min-w-[280px]">
+                  <div className="absolute top-full left-0 mt-2 z-50 bg-white dark:bg-[#171717] border border-gray-300 dark:border-[#262626] rounded-lg p-3 shadow-lg w-full min-w-[280px]">
                     <div className="flex flex-col gap-3">
-                      <label className="text-xs sm:text-sm text-gray-300 font-medium">
+                      <label className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 font-medium">
                         Select Date:
                       </label>
                       <input
@@ -546,7 +545,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         max={new Date().toISOString().split('T')[0]}
-                        className="bg-[#121212] border border-[#262626] rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-1 focus:ring-[#22d3ee]"
+                        className="bg-gray-50 dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-lg px-3 py-2 text-xs sm:text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#22d3ee]"
                       />
                       <div className="flex gap-2">
                         <button
@@ -566,7 +565,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
                             setShowDatePicker(false);
                             setSelectedDate("");
                           }}
-                          className="px-3 py-2 bg-[#262626] hover:bg-[#333] text-gray-300 rounded-lg text-xs sm:text-sm font-medium transition-colors"
+                          className="px-3 py-2 bg-gray-200 dark:bg-[#262626] hover:bg-gray-300 dark:hover:bg-[#333] text-gray-700 dark:text-gray-300 rounded-lg text-xs sm:text-sm font-medium transition-colors"
                         >
                           Cancel
                         </button>
@@ -586,7 +585,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
           {isLoggedIn && (
             <button
               onClick={handleSummarizeClick}
-              className="px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 bg-[#171717] hover:bg-[#262626] rounded-lg transition-colors text-xs sm:text-sm lg:text-base font-medium flex items-center gap-2 border border-[#262626] hover:border-[#22d3ee] w-full text-left"
+              className="px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-[#171717] hover:bg-gray-100 dark:hover:bg-[#262626] rounded-lg transition-colors text-xs sm:text-sm lg:text-base font-medium flex items-center gap-2 border border-gray-300 dark:border-[#262626] hover:border-[#22d3ee] w-full text-left"
             >
               <span className="text-[#22d3ee] text-xs sm:text-sm">✦</span> Summarize the current
               email
@@ -610,13 +609,12 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
 
         {isRagLoading && (
           <div className="flex items-start gap-2 sm:gap-2.5 lg:gap-3">
-            <img
-              src="/logo.png"
-              alt="Meeco Avatar"
-              className="w-5 h-5 sm:w-6 sm:h-6 lg:w-6 lg:h-6 xl:w-7 xl:h-7 rounded-full animate-pulse"
-            />
-            <div className="max-w-[85%] rounded-lg px-2.5 sm:px-3 lg:px-3.5 xl:px-4 py-1.5 sm:py-2 lg:py-2.5 xl:py-3 bg-[#171717]">
-              <p className="text-[11px] sm:text-xs lg:text-sm xl:text-base text-gray-400 animate-pulse">
+            <div className="relative w-5 h-5 sm:w-6 sm:h-6 lg:w-6 lg:h-6 xl:w-7 xl:h-7 flex-shrink-0 mt-0.5">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#22d3ee] via-[#3b82f6] to-[#a855f7] animate-spin" style={{ animationDuration: '1.5s' }} />
+              <div className="absolute inset-[2.5px] rounded-full bg-white dark:bg-[#121212] z-10" />
+            </div>
+            <div className="max-w-[85%] rounded-lg px-2.5 sm:px-3 lg:px-3.5 xl:px-4 py-1.5 sm:py-2 lg:py-2.5 xl:py-3 bg-gray-100 dark:bg-[#171717]">
+              <p className="text-[11px] sm:text-xs lg:text-sm xl:text-base text-gray-500 dark:text-gray-400 animate-pulse">
                 {isRagEnabled ? "Searching your inbox..." : "Meeco is thinking..."}
               </p>
             </div>
@@ -628,11 +626,11 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
       </main>
 
       {/* --- FOOTER REMAINS THE SAME --- */}
-      <footer className="p-3 sm:p-3.5 lg:p-4 xl:p-5 border-t border-[#262626] flex-shrink-0 space-y-2 sm:space-y-2.5 lg:space-y-3">
+      <footer className="p-3 sm:p-3.5 lg:p-4 xl:p-5 border-t border-gray-300 dark:border-[#262626] flex-shrink-0 space-y-2 sm:space-y-2.5 lg:space-y-3 bg-white dark:bg-[#121212]">
 
 
         <div className="relative w-full">
-          <form onSubmit={handleAskQuestionSubmit} className="relative w-full bg-[#121212] border border-[#262626] rounded-xl focus-within:ring-1 focus-within:ring-[#22d3ee] transition-all">
+          <form onSubmit={handleAskQuestionSubmit} className="relative w-full bg-gray-50 dark:bg-[#121212] border border-gray-300 dark:border-[#262626] rounded-xl focus-within:ring-1 focus-within:ring-[#22d3ee] transition-all">
             <div className="grid p-3">
               {/* Ghost suggestion layer */}
               <div
@@ -647,9 +645,9 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
                 }}
                 className="w-full bg-transparent border-none p-0 text-[13px] sm:text-[14px] text-white font-normal leading-relaxed tracking-normal pointer-events-none"
               >
-                <span className="text-white">{prompt + '\u200b'}</span>
+                <span className="text-gray-900 dark:text-white">{prompt + '\u200b'}</span>
                 {suggestion && (
-                  <span className="text-gray-500 opacity-60">{suggestion}</span>
+                  <span className="text-gray-400 dark:text-gray-500 opacity-60">{suggestion}</span>
                 )}
               </div>
 
@@ -689,7 +687,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
                     onClick={() => setIsRagEnabled(!isRagEnabled)}
                     className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all border ${isRagEnabled
                       ? "bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/30"
-                      : "bg-transparent text-gray-500 border-transparent hover:bg-[#262626]"
+                      : "bg-transparent text-gray-500 border-transparent hover:bg-gray-200 dark:hover:bg-[#262626]"
                       }`}
                   >
                     <span className="text-lg">
@@ -708,7 +706,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
                     onClick={() => setIsDraftMode(!isDraftMode)}
                     className={`flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all border ${isDraftMode
                       ? "bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/30"
-                      : "bg-transparent text-gray-500 border-transparent hover:bg-[#262626]"
+                      : "bg-transparent text-gray-500 border-transparent hover:bg-gray-200 dark:hover:bg-[#262626]"
                       }`}
                   >
                     <svg
@@ -741,7 +739,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
                   disabled={!prompt.trim() && !isRagLoading}
                   className={`p-1.5 rounded-lg transition-colors ${prompt.trim()
                     ? "bg-[#22d3ee] text-black hover:bg-[#1bbccf]"
-                    : "bg-[#262626] text-gray-500 cursor-not-allowed"
+                    : "bg-gray-200 dark:bg-[#262626] text-gray-500 cursor-not-allowed"
                     }`}
                 >
                   <svg
@@ -767,7 +765,7 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
 
         <div className="flex justify-between items-center">
           {isLoggedIn && (
-            <div className="px-2 sm:px-2.5 lg:px-3 py-1 sm:py-1.5 lg:py-2 rounded-lg text-[10px] sm:text-[11px] lg:text-xs xl:text-sm font-semibold text-[#22d3ee] border border-[#22d3ee]/50 hover:bg-[#262626] hover:border-[#22d3ee]">
+            <div className="px-2 sm:px-2.5 lg:px-3 py-1 sm:py-1.5 lg:py-2 rounded-lg text-[10px] sm:text-[11px] lg:text-xs xl:text-sm font-semibold text-[#22d3ee] border border-[#22d3ee]/50 hover:bg-gray-100 dark:hover:bg-[#262626] hover:border-[#22d3ee] transition-colors">
               <span>⚡️ {userCredits === -1 ? '∞ Unlimited' : userCredits !== null ? userCredits : '—'} credits{userCredits !== null && userCredits === 0 ? ' — Upgrade >' : ''}</span>
             </div>
           )}
@@ -775,8 +773,8 @@ function ChatScreen({ isLoggedIn, onLoginClick, activeConversationId, onConversa
           {/* Helper Hint */}
           {isLoggedIn && (
             <div className="flex justify-center mb-1">
-              <div className="px-2 py-1 bg-[#1E1E1E] border border-[#2A2A2A] rounded text-xs text-gray-500 flex items-center gap-2">
-                <span className="bg-[#2A2A2A] rounded px-1 py-0.5 text-gray-300 font-mono text-[10px] sm:text-xs">Ctrl + A</span>
+              <div className="px-2 py-1 bg-gray-50 dark:bg-[#1E1E1E] border border-gray-300 dark:border-[#2A2A2A] rounded text-xs text-gray-500 flex items-center gap-2">
+                <span className="bg-gray-200 dark:bg-[#2A2A2A] rounded px-1 py-0.5 text-gray-700 dark:text-gray-300 font-mono text-[10px] sm:text-xs">Ctrl + A</span>
                 <span>for AI Autocomplete</span>
               </div>
             </div>
